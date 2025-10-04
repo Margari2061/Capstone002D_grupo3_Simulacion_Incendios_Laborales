@@ -1,1 +1,22 @@
+# Archivos ocultos de Windows
 ~$*
+
+# Visual Studio
+.vs/
+[Bb]in/
+[Oo]bj/
+[Mm]igrations/
+*.csproj.user
+*.suo
+*.vsconfig
+*Development.json
+
+# Unity
+[Bb]uild/
+[Bb]uilds/
+[Ll]ibrary/
+[Ll]ogs/
+[Tt]emp/
+[Uu]ser[Ss]ettings/
+[Ff]ase 2/[Ee]videncias [Pp]royecto/[Mm]obile/*.csproj
+[Ff]ase 2/[Ee]videncias [Pp]royecto/[Mm]obile/*.sln
