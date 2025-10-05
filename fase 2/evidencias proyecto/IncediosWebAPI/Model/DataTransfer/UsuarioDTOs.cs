@@ -40,8 +40,8 @@ namespace IncediosWebAPI.Model.DataTransfer
     public class UsuarioLoginDTO
     {
         [Required]
-        [EmailAddress]
-        public string Mail { get; set; } = string.Empty;
+      
+        public string Rut { get; set; } = string.Empty;
 
         [Required]
         public string Password { get; set; } = string.Empty;

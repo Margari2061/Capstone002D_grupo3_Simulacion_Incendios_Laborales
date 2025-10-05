@@ -35,49 +35,16 @@ if (app.Environment.IsDevelopment())
 
 
 
-//------------------------------ Lee las empresas en la base de datos ---------------------------------
-
-app.MapGet("/empresas", async (IncendioContext context) => await UsuarioModule.GetEmpresas(context));
-
-app.MapPost("/empresas", async (
-    Empresa req,
-    IncendioContext context
-    ) =>
-{
-
-    await context
-    .Empresas
-    .AddAsync(req);
-
-    await context.SaveChangesAsync();
-
-    return "Ok";
-});
-
-
-// ==================== SEDES ====================
-app.MapGet("/sedes/{rutEmpresa}", async (int rutEmpresa, IncendioContext context) =>
-    await UsuarioModule.GetSedesPorEmpresa(rutEmpresa, context));
-
-// ==================== DEPARTAMENTOS ====================
-app.MapGet("/departamentos/{idSede}", async (int idSede, IncendioContext context) =>
-    await UsuarioModule.GetDepartamentosPorSede(idSede, context));
 
 // ==================== USUARIO - LOGIN ====================
-app.MapPost("/usuarios/login", async (UsuarioLoginDTO loginDto, IncendioContext context) =>
+app.MapPost("/login", async (UsuarioLoginDTO loginDto, IncendioContext context) =>
     await UsuarioModule.LoginUsuario(loginDto, context));
 
-// ==================== USUARIO - REGISTER ====================
-app.MapPost("/usuarios/registro", async (UsuarioRegistroDTO registroDto, IncendioContext context) =>
-    await UsuarioModule.RegistrarUsuario(registroDto, context));
 
 // ==================== USUARIO - PERFIL ====================
 app.MapGet("/usuarios/{rut}", async (int rut, IncendioContext context) =>
     await UsuarioModule.GetUsuarioPorRut(rut, context));
 
-// ==================== PARTIDA - HISTORIAL ====================
-app.MapGet("/usuarios/{rut}/partidas", async (int rut, IncendioContext context) =>
-    await UsuarioModule.GetPartidasPorUsuario(rut, context));
 
 // ==================== PARTIDA - COMENZAR_PARTIDA ====================
 // (Esto ir� en PartidaModule.cs cuando lo crees)
