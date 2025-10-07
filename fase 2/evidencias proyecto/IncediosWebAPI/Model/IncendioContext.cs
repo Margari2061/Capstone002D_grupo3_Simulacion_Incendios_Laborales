@@ -23,7 +23,7 @@ public class IncendioContext : DbContext
     public DbSet<Usuario> Usuarios { get; set; }
     public DbSet<Partida> Partidas { get; set; }
     public DbSet<Nivel> Niveles { get; set; }
-    public DbSet<MetricasEvento> MetricasEventos { get; set; }
+    public DbSet<MetricasEvento> MetricasEventos { get; set; }  //OK
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -31,12 +31,7 @@ public class IncendioContext : DbContext
         base.OnModelCreating(modelBuilder);
 
 
-        //SetEmpresa(modelBuilder);
-
-        // Configurar relaciones ------------------------
-
-
-        //--------- Configurar propiedades de Strings ------------------
+        //--------- Configurar propiedades de Strings ------------------ OK
         modelBuilder.Entity<Empresa>()
                 .Property(e => e.Nombre)
                 ;
@@ -52,7 +47,7 @@ public class IncendioContext : DbContext
         modelBuilder.Entity<Usuario>()
             .Property(u => u.Mail)
             ;
-
+        // -------------------------------------------------------------
         // Configurar valores por defecto
         modelBuilder.Entity<Usuario>()
             .Property(u => u.Genero)
@@ -65,7 +60,13 @@ public class IncendioContext : DbContext
         modelBuilder.Entity<Partida>()
             .Property(p => p.Fecha)
             .HasDefaultValueSql("GETUTCDATE()");
+
+
+
         // ==========================================================================================================
+
+
+
 
         //  DATOS INICIALES DE NIVELES (AGREGAR ESTO)
         modelBuilder.Entity<Nivel>().HasData(
@@ -75,7 +76,7 @@ public class IncendioContext : DbContext
                 Nombre = "Incendio Oficina Nivel 1",
                 FuegosApagadosEsperados = 2,
                 ExtintoresUsadosEsperados = 1,
-                UsoAlarmaEsperado = true
+                UsoAlarmaEsperado = 1  // ← CAMBIAR si UsoAlarmaEsperado es int
             },
             new Nivel
             {
@@ -83,23 +84,8 @@ public class IncendioContext : DbContext
                 Nombre = "Fuego Cocina",
                 FuegosApagadosEsperados = 3,
                 ExtintoresUsadosEsperados = 2,
-                UsoAlarmaEsperado = false
+                UsoAlarmaEsperado = 0  // ← CAMBIAR si UsoAlarmaEsperado es int
             }
         );
-    }
-
-
-
-
-
-    private void SetEmpresa(ModelBuilder builder)
-    {
-        EntityTypeBuilder<Empresa> empresa = builder.Entity<Empresa>();
-
-        Empresa[] empresas = [
-            new() { Rut = 11111111, Dv='1', Nombre="Empresa Falsa", Rubro="Mentir"}
-            ];
-
-        empresa.HasData(empresas);
     }
 }

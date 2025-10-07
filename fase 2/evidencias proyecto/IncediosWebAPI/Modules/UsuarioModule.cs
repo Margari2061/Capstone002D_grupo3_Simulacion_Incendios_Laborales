@@ -6,6 +6,7 @@ using IncediosWebAPI.Model;
 using IncediosWebAPI.Model.DataTransfer;
 using IncediosWebAPI.Model.Domain;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace IncediosWebAPI.Modules;
 
@@ -20,18 +21,47 @@ public static class UsuarioModule
     {
         try
         {
-            int rutDTO = int.Parse(loginDto.Rut.Split('-')[0]);
-            // Buscar usuario por email
-            var usuario = await context.Usuarios
+            // Validar que el RUT tenga formato correcto (12345678-K)
+            if (string.IsNullOrEmpty(loginDto.Rut) || !loginDto.Rut.Contains('-'))
+            {
+                return Results.BadRequest("Formato de RUT inválido. Use formato: 12345678-K");
+            }
 
-                .FirstOrDefaultAsync(u => u.Rut == rutDTO);
+            // Extraer solo la parte numérica del RUT (antes del guión)
+            var rutParts = loginDto.Rut.Split('-');
+
+            
+            int rutNumerico;
+            if (rutParts.Length != 2 || !int.TryParse(rutParts[0], out rutNumerico))
+            {
+                return Results.BadRequest("Formato de RUT inválido. Use formato: 12345678-K");
+            }
+
+            
+            var usuario = await context.Usuarios
+                .FirstOrDefaultAsync(u => u.Rut == rutNumerico);
 
             if (usuario == null || loginDto.Password.Hash() != usuario.Clave)
             {
                 return Results.Unauthorized();
             }
 
-            return Results.Ok();
+            // Éxito - retornar información del usuario
+            var response = new UsuarioResponseDTO
+            {
+                Rut = usuario.Rut,
+                Nombre = usuario.Nombre,
+                Mail = usuario.Mail,
+                Genero = usuario.Genero,
+                EsMonitor = usuario.EsMonitor,
+                IdDepartamento = usuario.IdDepartamento
+            };
+
+            return Results.Ok(new
+            {
+                message = "Login exitoso",
+                usuario = response
+            });
         }
         catch (Exception ex)
         {
@@ -39,6 +69,7 @@ public static class UsuarioModule
         }
     }
 
+    // ====================================================================================================================
     // GET /api/usuarios/{rut} - Obtener usuario por RUT
     public static async Task<IResult> GetUsuarioPorRut(int rut, IncendioContext context)
     {

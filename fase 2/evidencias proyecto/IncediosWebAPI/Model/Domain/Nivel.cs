@@ -11,9 +11,6 @@ namespace IncediosWebAPI.Model.Domain
         [MaxLength(255)]
         public string Nombre { get; set; } = string.Empty;
 
-        /*[MaxLength(500)]
-        public string? Descripcion { get; set; }*/
-
         [Required]
         public int FuegosApagadosEsperados { get; set; }
 
@@ -21,9 +18,7 @@ namespace IncediosWebAPI.Model.Domain
         public int ExtintoresUsadosEsperados { get; set; }
 
         [Required]
-        public bool UsoAlarmaEsperado { get; set; }
-
-        // Navigation property
-        public virtual ICollection<Partida> Partidas { get; set; } = new List<Partida>();
+        public int UsoAlarmaEsperado { get; set; } // ← CAMBIÓ de bool a int
     }
 }
+        

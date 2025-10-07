@@ -46,41 +46,27 @@ app.MapGet("/usuarios/{rut}", async (int rut, IncendioContext context) =>
     await UsuarioModule.GetUsuarioPorRut(rut, context));
 
 
+
+
+
+// -----------------------------------------------------------------------------------------------------------------
 // ==================== PARTIDA - COMENZAR_PARTIDA ====================
-// (Esto ir� en PartidaModule.cs cuando lo crees)
 app.MapPost("/partidas", async (PartidaCreateDTO partidaDto, IncendioContext context) =>
-{
-    // L�gica temporal - luego la mover�s a PartidaModule
-    try
-    {
-        var partida = new Partida
-        {
-            RutUsuario = partidaDto.RutUsuario,
-            Nivel = partidaDto.Nivel,
-            TiempoJugado = TimeSpan.FromSeconds(partidaDto.TiempoJugadoSegundos),
-            Resultado = partidaDto.Resultado,
-            FuegosApagados = partidaDto.FuegosApagados,
-            ExtintoresUsados = partidaDto.ExtintoresUsados,
-            UsoAlarma = partidaDto.UsoAlarma,
-            Heridas = partidaDto.Heridas,
-            Desasosiego = partidaDto.Desasosiego
-        };
+    await PartidaModule.CrearPartida(partidaDto, context));
 
-        context.Partidas.Add(partida);
-        await context.SaveChangesAsync();
+app.MapGet("/usuarios/{rut}/partidas", async (int rut, IncendioContext context) =>
+    await PartidaModule.GetPartidasPorUsuario(rut, context));
 
-        return Results.Created($"/partidas/{partida.Id}", new
-        {
-            message = "Partida registrada exitosamente",
-            partidaId = partida.Id,
-            ratioExtincion = partida.RatioExtincion
-        });
-    }
-    catch (Exception ex)
-    {
-        return Results.Problem($"Error al registrar partida: {ex.Message}");
-    }
-});
+app.MapGet("/partidas/estadisticas", async (IncendioContext context) =>
+    await PartidaModule.GetEstadisticasGenerales(context));
+
+
+// ==================== PARTIDA - FINALIZAR ====================  
+app.MapPost("/partidas/finalizar", async (PartidaFinalizarDTO finalizarDto, IncendioContext context) =>
+    await PartidaModule.FinalizarPartida(finalizarDto, context));
+
+// -----------------------------------------------------------------------------------------------------------------
+
 
 // ==================== ETL - COMENZAR_PROCESO ====================
 // (Esto ir� en EtlModule.cs cuando lo crees)
@@ -89,7 +75,7 @@ app.MapPost("/etl/procesar", async (IncendioContext context) =>
     // L�gica temporal para proceso ETL
     try
     {
-        // Ejemplo: Transferir datos de Partidas a MetricasEvento
+        //Transferir datos de Partidas a MetricasEvento
         var partidasRecientes = await context.Partidas
             .Where(p => p.Fecha >= DateTime.UtcNow.AddDays(-1))
             .ToListAsync();

@@ -17,7 +17,7 @@ namespace IncediosWebAPI.Model.Domain
 
         [Required]
         [ForeignKey("Nivel")]
-        public int Nivel { get; set; } // FK a Nivel.Id
+        public int IdNivel { get; set; } // FK a Nivel.Id CAMBIÓ de "Nivel" a "IdNivel"
 
         [Required]
         public TimeSpan TiempoJugado { get; set; }
@@ -33,7 +33,13 @@ namespace IncediosWebAPI.Model.Domain
         public int ExtintoresUsados { get; set; }
 
         [Required]
+        public int UsoInadecuadoExtintores { get; set; } // NUEVOOO
+
+        [Required]
         public bool UsoAlarma { get; set; }
+
+        [Required]
+        public bool UsoUniforme { get; set; } // NUEVOOO
 
         [Required]
         [Range(0, 100)]
@@ -45,15 +51,12 @@ namespace IncediosWebAPI.Model.Domain
 
         // Navigation properties
         public virtual Usuario Usuario { get; set; } = null!;
+        public virtual Nivel Nivel { get; set; } = null!; // Actualizar nombre
 
-        [ForeignKey("Nivel")]
-        public virtual Nivel NivelNavigation { get; set; } = null!;
 
         // Propiedad calculada - Ratio de Extinción
         [NotMapped]
-        public double RatioExtincion
-        {
-            get { return ExtintoresUsados > 0 ? (double)FuegosApagados / ExtintoresUsados : 0; }
-        }
+        public double RatioExtincion => ExtintoresUsados > 0 ?
+        (double)FuegosApagados / ExtintoresUsados : 0;
     }
 }
