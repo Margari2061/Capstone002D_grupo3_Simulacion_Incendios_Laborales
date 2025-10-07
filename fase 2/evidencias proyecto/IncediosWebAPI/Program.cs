@@ -68,30 +68,24 @@ app.MapPost("/partidas/finalizar", async (PartidaFinalizarDTO finalizarDto, Ince
 // -----------------------------------------------------------------------------------------------------------------
 
 
-// ==================== ETL - COMENZAR_PROCESO ====================
-// (Esto ir� en EtlModule.cs cuando lo crees)
-app.MapPost("/etl/procesar", async (IncendioContext context) =>
-{
-    // L�gica temporal para proceso ETL
-    try
-    {
-        //Transferir datos de Partidas a MetricasEvento
-        var partidasRecientes = await context.Partidas
-            .Where(p => p.Fecha >= DateTime.UtcNow.AddDays(-1))
-            .ToListAsync();
 
-        // Aqu� ir�a la l�gica de transformaci�n y carga al Data Warehouse
-        return Results.Ok(new
-        {
-            message = "Proceso ETL iniciado",
-            partidasProcesadas = partidasRecientes.Count
-        });
-    }
-    catch (Exception ex)
-    {
-        return Results.Problem($"Error en proceso ETL: {ex.Message}");
-    }
-});
+
+// ==================== ETL - PROCESAR ====================
+app.MapPost("/etl/procesar", async (IncendioContext context) =>
+    await ETLModule.ProcesarETL(context));
+
+// ==================== ETL - ESTADÍSTICAS ====================
+app.MapGet("/etl/estadisticas", async (IncendioContext context) =>
+    await ETLModule.GetEstadisticasETL(context));
+
+// ==================== ETL - LIMPIEZA ====================
+app.MapPost("/etl/limpiar", async (IncendioContext context) =>
+    await ETLModule.LimpiarDatosAntiguos(context));
+
+
+
+
+
 
 // ==================== DASHBOARD ====================
 app.MapGet("/dashboard/estadisticas", async (IncendioContext context) =>

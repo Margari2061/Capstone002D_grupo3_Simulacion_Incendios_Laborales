@@ -27,7 +27,7 @@ namespace IncediosWebAPI.Modules
                 // Validar que el nivel existe
                 var nivelExiste = await context.Niveles
                     .AnyAsync(n => n.Id == partidaDto.Nivel);
-
+                
                 if (!nivelExiste)
                 {
                     return Results.NotFound($"Nivel con ID {partidaDto.Nivel} no encontrado");
