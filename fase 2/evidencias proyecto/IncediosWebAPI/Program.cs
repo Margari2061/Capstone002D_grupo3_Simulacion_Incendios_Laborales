@@ -2,107 +2,70 @@
 // CONFIGURAR Y EJECUTAR LA APLICACI�N 
 
 using IncediosWebAPI.Model;
-using IncediosWebAPI.Model.Domain;
-using IncediosWebAPI.Modules;
 using Microsoft.EntityFrameworkCore;
-using IncediosWebAPI.Model.DataTransfer;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
-// Configuraci�n de la base de datos 
-string connectionString = "Data Source=localhost;Initial Catalog=operacional;User Id=joan;Password=joan;Integrated Security=False;Connect Timeout=3600;Encrypt=False;TrustServerCertificate=True";
-builder.Services.AddDbContextPool<IncendioContext>(options => options.UseSqlServer(connectionString));
+// Configuracion de la base de datos 
+IConfigurationSection dbSection = builder.Configuration.GetSection("DB");
+string? conn = dbSection.GetValue<string>("Operacional");
+builder.Services.AddDbContextPool<IncendioContext>(options => options.UseSqlServer(conn));
 
-//----------------------------------
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// Configurar DW -- TODO
+
+// Configurar Autenticacion por Cookie
+builder.Services
+    .AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    })
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/auth/index";
+    });
+
+builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-
-// Configurar Swagger en desarrollo
-
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(op =>
-    {
-        op.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-        op.RoutePrefix = "";
-    });
+    app.UseHsts();    
 }
 
+app.UseHttpsRedirection();
+app.UseStaticFiles();
 
+app.UseRouting();
 
+app.UseAuthentication();
+app.UseAuthorization();
 
-// ==================== USUARIO - LOGIN ====================
-app.MapPost("/login", async (UsuarioLoginDTO loginDto, IncendioContext context) =>
-    await UsuarioModule.LoginUsuario(loginDto, context));
+app.MapControllerRoute
+(
+    name: "default",
+    pattern: "{controller=Auth}/{action=Index}/{id?}"
+);
 
+//// ==================== DASHBOARD ====================
+//app.MapGet("/dashboard/estadisticas", async (IncendioContext context) =>
+//{
+//    // Estad�sticas b�sicas para el dashboard
+//    var totalUsuarios = await context.Usuarios.CountAsync();
+//    var totalPartidas = await context.Partidas.CountAsync();
+//    var partidasExitosas = await context.Partidas
+//        .CountAsync(p => p.Resultado == '0'); // Condiciones Cumplidas
 
-// ==================== USUARIO - PERFIL ====================
-app.MapGet("/usuarios/{rut}", async (int rut, IncendioContext context) =>
-    await UsuarioModule.GetUsuarioPorRut(rut, context));
-
-
-
-
-
-// -----------------------------------------------------------------------------------------------------------------
-// ==================== PARTIDA - COMENZAR_PARTIDA ====================
-app.MapPost("/partidas", async (PartidaCreateDTO partidaDto, IncendioContext context) =>
-    await PartidaModule.CrearPartida(partidaDto, context));
-
-app.MapGet("/usuarios/{rut}/partidas", async (int rut, IncendioContext context) =>
-    await PartidaModule.GetPartidasPorUsuario(rut, context));
-
-app.MapGet("/partidas/estadisticas", async (IncendioContext context) =>
-    await PartidaModule.GetEstadisticasGenerales(context));
-
-
-// ==================== PARTIDA - FINALIZAR ====================  
-app.MapPost("/partidas/finalizar", async (PartidaFinalizarDTO finalizarDto, IncendioContext context) =>
-    await PartidaModule.FinalizarPartida(finalizarDto, context));
-
-// -----------------------------------------------------------------------------------------------------------------
-
-
-
-
-// ==================== ETL - PROCESAR ====================
-app.MapPost("/etl/procesar", async (IncendioContext context) =>
-    await ETLModule.ProcesarETL(context));
-
-// ==================== ETL - ESTADÍSTICAS ====================
-app.MapGet("/etl/estadisticas", async (IncendioContext context) =>
-    await ETLModule.GetEstadisticasETL(context));
-
-// ==================== ETL - LIMPIEZA ====================
-app.MapPost("/etl/limpiar", async (IncendioContext context) =>
-    await ETLModule.LimpiarDatosAntiguos(context));
-
-
-
-
-
-
-// ==================== DASHBOARD ====================
-app.MapGet("/dashboard/estadisticas", async (IncendioContext context) =>
-{
-    // Estad�sticas b�sicas para el dashboard
-    var totalUsuarios = await context.Usuarios.CountAsync();
-    var totalPartidas = await context.Partidas.CountAsync();
-    var partidasExitosas = await context.Partidas
-        .CountAsync(p => p.Resultado == '0'); // Condiciones Cumplidas
-
-    return Results.Ok(new
-    {
-        totalUsuarios,
-        totalPartidas,
-        partidasExitosas,
-        tasaExito = totalPartidas > 0 ? (double)partidasExitosas / totalPartidas : 0
-    });
-});
+//    return Results.Ok(new
+//    {
+//        totalUsuarios,
+//        totalPartidas,
+//        partidasExitosas,
+//        tasaExito = totalPartidas > 0 ? (double)partidasExitosas / totalPartidas : 0
+//    });
+//});
 
 app.Run();
