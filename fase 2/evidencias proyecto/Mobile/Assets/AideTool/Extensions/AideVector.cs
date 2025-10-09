@@ -10,8 +10,8 @@ namespace AideTool
         public static Vector2 ToXZVector2(this Vector3 vector) => new(vector.x, vector.z);
         
         public static Vector3 ToXZVector3(this Vector2 vector, float y) => new(vector.x, y, vector.y);
-        
-        public static Vector3 ToXZVector3(this Vector2 vector) => ToXZVector3(vector, 0f);
+
+        public static Vector3 ToXZVector3(this Vector2 vector) => new(vector.x, 0f, vector.y);
         
         public static Vector3 ToXZVector3(this Vector3 vector, float y) => new(vector.x, y, vector.z);
         
