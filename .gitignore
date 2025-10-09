@@ -9,7 +9,8 @@
 *.csproj.user
 *.suo
 *.vsconfig
-*Development.json
+appsettings.json
+docker-compose.yml
 
 # Unity
 [Bb]uild/
