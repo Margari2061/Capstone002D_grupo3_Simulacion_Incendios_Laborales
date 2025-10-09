@@ -10,8 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Configuracion de la base de datos 
 IConfigurationSection dbSection = builder.Configuration.GetSection("DB");
-string? conn = dbSection.GetValue<string>("Operacional");
-builder.Services.AddDbContextPool<IncendioContext>(options => options.UseSqlServer(conn));
+builder.Services.AddDbContextPool<IncendioContext>(options => options.UseSqlServer(dbSection.GetValue<string>("Operacional")));
 
 // Configurar DW -- TODO
 
