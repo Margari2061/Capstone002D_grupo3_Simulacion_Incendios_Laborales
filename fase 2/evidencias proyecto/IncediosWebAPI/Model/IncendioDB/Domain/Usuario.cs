@@ -1,29 +1,22 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace IncediosWebAPI.Model.Domain
+namespace IncediosWebAPI.Model.IncendioDB.Domain
 {
     public class Usuario
     {
-        [Key]
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Rut { get; set; }
 
         [Required]
-        [MaxLength(1)]
         public char Dv { get; set; }
 
-        [Required]
-        [MaxLength(255)]
+        [Required, MaxLength(255)]
         public string Nombre { get; set; } = string.Empty;
 
         [Required]
-        [EmailAddress]
-        [MaxLength(255)]
-        public string Mail { get; set; } = string.Empty;
-
-        [Required]
         [MaxLength(1)]
-        public char Genero { get; set; } = 'N'; // M, F, N
+        public Generos Genero { get; set; }
 
         [Required]
         public DateTime FechaNacimiento { get; set; }
@@ -34,15 +27,15 @@ namespace IncediosWebAPI.Model.Domain
 
         public int Piso { get; set; }
 
-        [Required]
         public bool EsMonitor { get; set; } = false;
 
         [Required]
-        [ForeignKey("Departamento")]
         public int IdDepartamento { get; set; }
 
+        [ForeignKey(nameof(IdDepartamento))]
+        public Departamento? Departamento { get; set; }
+
         // Navigation properties
-        public virtual Departamento Departamento { get; set; } = null!;
-        public virtual ICollection<Partida> Partidas { get; set; } = new List<Partida>();
+        public List<Partida> Partidas { get; set; } = [];
     }
 }

@@ -40,7 +40,7 @@ namespace IncediosWebAPI.Model.DataTransfer
     public class UsuarioLoginDTO
     {
         [Required]
-      
+        [EmailAddress]
         public string Rut { get; set; } = string.Empty;
 
         [Required]
@@ -53,7 +53,7 @@ namespace IncediosWebAPI.Model.DataTransfer
         public int Rut { get; set; }
         public string Nombre { get; set; } = string.Empty;
         public string Mail { get; set; } = string.Empty;
-        public char Genero { get; set; }
+        public Generos Genero { get; set; }
         public bool EsMonitor { get; set; }
         public int IdDepartamento { get; set; }
     }

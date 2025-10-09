@@ -1,7 +1,9 @@
 ﻿using IncediosWebAPI.Model;
 using IncediosWebAPI.Model.DataTransfer;
-using IncediosWebAPI.Model.Domain;
+using IncediosWebAPI.Model.IncendioDB;
+using IncediosWebAPI.Model.IncendioDB.Domain;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace IncediosWebAPI.Modules
 {
@@ -44,7 +46,7 @@ namespace IncediosWebAPI.Modules
 
                     // Valores iniciales - el jugador empieza con 0 de daño (full vida)
                     TiempoJugado = TimeSpan.Zero,
-                    Resultado = 'P', // 'P' = Partida en Progreso
+                    Resultado = ResultadosPartida.EnProgreso, // 'P' = Partida en Progreso
                     FuegosApagados = 0,
                     ExtintoresUsados = 0,
                     UsoInadecuadoExtintores = 0,
@@ -56,15 +58,16 @@ namespace IncediosWebAPI.Modules
                 //==================================================
 
                 // Guardar en base de datos
-                context.Partidas.Add(partida);
+                EntityEntry<Partida> entry = context.Partidas.Add(partida);
                 await context.SaveChangesAsync();
 
+                int partidaId = entry.Entity.Id;
                 //==================================================
 
                 // Devolver SOLO el ID de la partida para que el juego lo use
                 return Results.Ok(new
                 {
-                    PartidaId = partida.Id,
+                    PartidaId = partidaId,
                     Mensaje = "Partida iniciada correctamente",
                     FechaInicio = partida.Fecha
                 });
@@ -83,21 +86,21 @@ namespace IncediosWebAPI.Modules
             {
                 // Buscar la partida
                 var partida = await context.Partidas
-                    .FirstOrDefaultAsync(p => p.Id == finalizarDto.PartidaId);
+                    .FirstOrDefaultAsync(p => p.Id == finalizarDto.Id);
 
                 if (partida == null)
                 {
-                    return Results.NotFound($"Partida con ID {finalizarDto.PartidaId} no encontrada");
+                    return Results.NotFound($"Partida con ID {finalizarDto.Id} no encontrada");
                 }
 
                 // Verificar que la partida no esté ya finalizada
-                if (partida.Resultado != 'P') // 'P' = En progreso
+                if (partida.Resultado != ResultadosPartida.EnProgreso) // 'P' = En progreso
                 {
                     return Results.BadRequest("Esta partida ya fue finalizada anteriormente");
                 }
 
                 // Actualizar con los resultados finales
-                partida.TiempoJugado = TimeSpan.FromSeconds(finalizarDto.TiempoJugadoSegundos);
+                partida.TiempoJugado = finalizarDto.TiempoJugado;
                 partida.Resultado = finalizarDto.Resultado;
                 partida.FuegosApagados = finalizarDto.FuegosApagados;
                 partida.ExtintoresUsados = finalizarDto.ExtintoresUsados;
@@ -117,33 +120,19 @@ namespace IncediosWebAPI.Modules
                 // Obtener descripción del resultado
                 string descripcionResultado = finalizarDto.Resultado switch
                 {
-                    '0' => "Condiciones Cumplidas",
-                    '1' => "Escape seguro",
-                    '2' => "Escape inmediato",
-                    '3' => "Escape tardío",
-                    '4' => "Muerte",
-                    'P' => "En progreso",
+                    ResultadosPartida.CondicionesCumplidas => "Condiciones Cumplidas",
+                    ResultadosPartida.EscapeSeguro => "Escape seguro",
+                    ResultadosPartida.EscapeInmediato => "Escape inmediato",
+                    ResultadosPartida.EscapeTardio=> "Escape tardío",
+                    ResultadosPartida.Muerte=> "Muerte",
+                    ResultadosPartida.EnProgreso => "En progreso",
                     _ => "Desconocido"
                 };
 
                 return Results.Ok(new
                 {
                     message = "Partida finalizada exitosamente",
-                    partidaId = partida.Id,
-                    resultado = descripcionResultado,
-                    metricas = new
-                    {
-                        tiempoTotalSegundos = partida.TiempoJugado.TotalSeconds,
-                        fuegosApagados = partida.FuegosApagados,
-                        extintoresUsados = partida.ExtintoresUsados,
-                        usoInadecuadoExtintores = partida.UsoInadecuadoExtintores,
-                        usoAlarma = partida.UsoAlarma,
-                        usoUniforme = partida.UsoUniforme,
-                        ratioExtincion = Math.Round(partida.RatioExtincion, 2),
-                        heridas = partida.Heridas,        // 0 = Sin daño (full vida)
-                        desasosiego = partida.Desasosiego, // 0 = Completamente calmado
-                        eficiencia = eficiencia
-                    }
+                    resultado = descripcionResultado
                 });
             }
             catch (Exception ex)
@@ -183,7 +172,6 @@ namespace IncediosWebAPI.Modules
                         UsoInadecuadoExtintores = p.UsoInadecuadoExtintores,
                         UsoAlarma = p.UsoAlarma,
                         UsoUniforme = p.UsoUniforme,
-                        RatioExtincion = Math.Round(p.RatioExtincion, 2),
                         Heridas = p.Heridas,        // 0 = Sin daño
                         Desasosiego = p.Desasosiego, // 0 = Sin estrés
                         Fecha = p.Fecha
@@ -214,7 +202,7 @@ namespace IncediosWebAPI.Modules
             {
                 var totalPartidas = await context.Partidas.CountAsync();
                 var partidasExitosas = await context.Partidas
-                    .CountAsync(p => p.Resultado == '0'); // '0' = Condiciones Cumplidas
+                    .CountAsync(p => p.Resultado == ResultadosPartida.CondicionesCumplidas); // '0' = Condiciones Cumplidas
 
                 var promedioTiempo = await context.Partidas
                     .AverageAsync(p => p.TiempoJugado.TotalSeconds);

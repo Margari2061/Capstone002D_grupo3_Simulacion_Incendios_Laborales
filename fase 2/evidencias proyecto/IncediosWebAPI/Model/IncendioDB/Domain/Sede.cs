@@ -1,9 +1,8 @@
-﻿
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace IncediosWebAPI.Model.Domain
+namespace IncediosWebAPI.Model.IncendioDB.Domain
 {
     public class Sede
     {
@@ -11,8 +10,10 @@ namespace IncediosWebAPI.Model.Domain
         public int Id { get; set; }
 
         [Required]
-        [ForeignKey("Empresa")]
         public int RutEmpresa { get; set; }
+
+        [ForeignKey(nameof(RutEmpresa))]
+        public Empresa? Empresa { get; set; }
 
         [Required]
         [MaxLength(100)]
@@ -28,7 +29,6 @@ namespace IncediosWebAPI.Model.Domain
         public string? Region { get; set; }
 
         // Navigation properties
-        public virtual Empresa Empresa { get; set; } = null!;
-        public virtual ICollection<Departamento> Departamentos { get; set; } = new List<Departamento>();
+        public List<Departamento> Departamentos { get; set; } = [];
     }
 }

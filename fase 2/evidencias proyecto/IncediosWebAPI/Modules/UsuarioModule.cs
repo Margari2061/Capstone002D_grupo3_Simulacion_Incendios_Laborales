@@ -2,17 +2,64 @@
 // LOS MÓDULOS NECESARIOS SON: USUARIO, PARTIDA Y ETL.
 
 using IncediosWebAPI.Extensions;
-using IncediosWebAPI.Model;
 using IncediosWebAPI.Model.DataTransfer;
-using IncediosWebAPI.Model.Domain;
+using IncediosWebAPI.Model.IncendioDB;
+using IncediosWebAPI.Model.IncendioDB.Domain;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 
 namespace IncediosWebAPI.Modules;
 
 public static class UsuarioModule
 {
+    // ==================== EMPRESAS Y DEPARTAMENTOS ====================
 
+    // GET /api/empresas - Obtener todas las empresas
+    public static async Task<IResult> GetEmpresas(IncendioContext context)
+    {
+        try
+        {
+            var empresas = await context.Empresas.ToArrayAsync();
+            return Results.Ok(empresas);
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem($"Error al obtener empresas: {ex.Message}");
+        }
+    }
+
+    // GET /api/sedes/{rutEmpresa} - Obtener sedes por empresa
+    public static async Task<IResult> GetSedesPorEmpresa(int rutEmpresa, IncendioContext context)
+    {
+        try
+        {
+            var sedes = await context.Sedes
+                .Where(s => s.RutEmpresa == rutEmpresa)
+                .ToArrayAsync();
+
+            return Results.Ok(sedes);
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem($"Error al obtener sedes: {ex.Message}");
+        }
+    }
+
+    // GET /api/departamentos/{idSede} - Obtener departamentos por sede
+    public static async Task<IResult> GetDepartamentosPorSede(int idSede, IncendioContext context)
+    {
+        try
+        {
+            var departamentos = await context.Departamentos
+                .Where(d => d.IdSede == idSede)
+                .ToArrayAsync();
+
+            return Results.Ok(departamentos);
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem($"Error al obtener departamentos: {ex.Message}");
+        }
+    }
 
     // ==================== USUARIOS ====================
 
@@ -21,47 +68,21 @@ public static class UsuarioModule
     {
         try
         {
-            // Validar que el RUT tenga formato correcto (12345678-K)
-            if (string.IsNullOrEmpty(loginDto.Rut) || !loginDto.Rut.Contains('-'))
-            {
-                return Results.BadRequest("Formato de RUT inválido. Use formato: 12345678-K");
-            }
+            int rut = int.Parse(loginDto.Rut.Split('-')[0]);
 
-            // Extraer solo la parte numérica del RUT (antes del guión)
-            var rutParts = loginDto.Rut.Split('-');
-
-            
-            int rutNumerico;
-            if (rutParts.Length != 2 || !int.TryParse(rutParts[0], out rutNumerico))
-            {
-                return Results.BadRequest("Formato de RUT inválido. Use formato: 12345678-K");
-            }
-
-            
+            // Buscar usuario por email
             var usuario = await context.Usuarios
-                .FirstOrDefaultAsync(u => u.Rut == rutNumerico);
+                .Include(u => u.Departamento)
+                .FirstOrDefaultAsync(u => u.Rut == rut);
 
-            if (usuario == null || loginDto.Password.Hash() != usuario.Clave)
+            if (usuario == null || loginDto.Password.Hash() == usuario.Clave)
             {
                 return Results.Unauthorized();
             }
 
-            // Éxito - retornar información del usuario
-            var response = new UsuarioResponseDTO
-            {
-                Rut = usuario.Rut,
-                Nombre = usuario.Nombre,
-                Mail = usuario.Mail,
-                Genero = usuario.Genero,
-                EsMonitor = usuario.EsMonitor,
-                IdDepartamento = usuario.IdDepartamento
-            };
+            // Retornar información del usuario (sin datos sensibles)
 
-            return Results.Ok(new
-            {
-                message = "Login exitoso",
-                usuario = response
-            });
+            return Results.Ok();
         }
         catch (Exception ex)
         {
@@ -69,7 +90,6 @@ public static class UsuarioModule
         }
     }
 
-    // ====================================================================================================================
     // GET /api/usuarios/{rut} - Obtener usuario por RUT
     public static async Task<IResult> GetUsuarioPorRut(int rut, IncendioContext context)
     {
@@ -88,7 +108,6 @@ public static class UsuarioModule
             {
                 Rut = usuario.Rut,
                 Nombre = usuario.Nombre,
-                Mail = usuario.Mail,
                 Genero = usuario.Genero,
                 EsMonitor = usuario.EsMonitor,
                 IdDepartamento = usuario.IdDepartamento
@@ -99,6 +118,24 @@ public static class UsuarioModule
         catch (Exception ex)
         {
             return Results.Problem($"Error al obtener usuario: {ex.Message}");
+        }
+    }
+
+    // GET /api/usuarios/{rut}/partidas - Obtener partidas de un usuario
+    public static async Task<IResult> GetPartidasPorUsuario(int rut, IncendioContext context)
+    {
+        try
+        {
+            var partidas = await context.Partidas
+                .Where(p => p.RutUsuario == rut)
+                .OrderByDescending(p => p.Fecha)
+                .ToListAsync();
+
+            return Results.Ok(partidas);
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem($"Error al obtener partidas: {ex.Message}");
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace IncediosWebAPI.Model.Domain
+namespace IncediosWebAPI.Model.IncendioDB.Domain
 {
     public class Nivel
     {
@@ -18,7 +18,9 @@ namespace IncediosWebAPI.Model.Domain
         public int ExtintoresUsadosEsperados { get; set; }
 
         [Required]
-        public int UsoAlarmaEsperado { get; set; } // ← CAMBIÓ de bool a int
+        public bool UsoAlarmaEsperado { get; set; }
+
+        // Navigation property
+        public List<Partida> Partidas { get; set; } = [];
     }
 }
-        
