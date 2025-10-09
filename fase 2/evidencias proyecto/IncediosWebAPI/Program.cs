@@ -1,9 +1,9 @@
 
 // CONFIGURAR Y EJECUTAR LA APLICACI�N 
 
-using IncediosWebAPI.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using IncediosWebAPI.Model.IncendioDB;
 
 var builder = WebApplication.CreateBuilder(args);
 
