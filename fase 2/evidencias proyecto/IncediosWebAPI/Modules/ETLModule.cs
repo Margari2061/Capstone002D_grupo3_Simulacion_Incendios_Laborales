@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace IncediosWebAPI.Modules
 {
-    public static class ETLModule
+    public static class ETLModule // --> Va a StatsController
     {
         // ==================== PROCESAR ETL ====================
         //public static async Task<IResult> ProcesarETL(IncendioContext context)

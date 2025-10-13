@@ -18,7 +18,7 @@ public class JWTAuthorizeAttribute : Attribute, IAuthorizationFilter
             .Headers
             .Authorization;
 
-        if(auth[0] is null || auth.Count == 0)
+        if(auth.Count == 0 || auth[0] is null)
         {
             context.Result = new JsonResult(new { message = "Unauthorized" })
             {

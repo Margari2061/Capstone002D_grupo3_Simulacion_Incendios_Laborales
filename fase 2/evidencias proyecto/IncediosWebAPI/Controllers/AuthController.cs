@@ -34,6 +34,8 @@ public class AuthController : Controller
         if (!ModelState.IsValid)
             return RedirectToAction(nameof(Index));
 
+        model.Rut = model.Rut.Replace(".", "");
+
         string[] teils = model
             .Rut
             .Split('-');

@@ -67,7 +67,7 @@ public class UsuariosController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Rut,Dv,Nombre,Genero,FechaNacimiento,Clave,Piso,EsMonitor,IdDepartamento,EsPlayer,EsAdmin")] UsuarioRegistroDTO model)
+    public async Task<IActionResult> Create([Bind("Rut,Nombre,Genero,FechaNacimiento,Clave,Piso,EsMonitor,IdDepartamento,EsPlayer,EsAdmin")] UsuarioRegistroDTO model)
     {
         if (ModelState.IsValid)
         {
@@ -78,10 +78,24 @@ public class UsuariosController : Controller
             if (model.EsAdmin)
                 roles |= AppRoles.Admin;
 
+            model.Rut = model.Rut.Replace(".", "");
+            string[] teils = model
+                .Rut
+                .Split('-');
+
+            if (teils.Length != 2)
+                throw new FormatException();
+
+            if (!int.TryParse(teils[0], out int rut))
+                throw new FormatException();
+
+            if (!char.TryParse(teils[1], out char dv))
+                throw new FormatException();
+
             Usuario user = new()
             {
-                Rut = model.Rut,
-                Dv = model.Dv,
+                Rut = rut,
+                Dv = dv,
                 Nombre = model.Nombre,
                 Genero = model.Genero,
                 FechaNacimiento = model.FechaNacimiento,
@@ -125,8 +139,7 @@ public class UsuariosController : Controller
 
         UsuarioRegistroDTO dto = new()
         {
-            Rut=usuario.Rut,
-            Dv=usuario.Dv,
+            Rut=$"{usuario.Rut}-{usuario.Dv}",
             Nombre=usuario.Nombre,
             Genero=usuario.Genero,
             FechaNacimiento=usuario.FechaNacimiento,
@@ -155,9 +168,24 @@ public class UsuariosController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Rut,Dv,Nombre,Genero,FechaNacimiento,Clave,Piso,EsMonitor,IdDepartamento,EsPlayer,EsAdmin")] UsuarioRegistroDTO model)
+    public async Task<IActionResult> Edit(int id, [Bind("Rut,Nombre,Genero,FechaNacimiento,Clave,Piso,EsMonitor,IdDepartamento,EsPlayer,EsAdmin")] UsuarioRegistroDTO model)
     {
-        if (id != model.Rut)
+        model.Rut = model.Rut.Replace(".", "");
+        string[] teils = model
+                .Rut
+                .Split('-');
+
+        if (teils.Length != 2)
+            throw new FormatException();
+
+        if (!int.TryParse(teils[0], out int rut))
+            throw new FormatException();
+
+        if (!char.TryParse(teils[1], out char dv))
+            throw new FormatException();
+
+
+        if (id != rut)
         {
             return NotFound();
         }
@@ -170,7 +198,7 @@ public class UsuariosController : Controller
             {
                 Usuario user = await _context
                     .Usuarios
-                    .FirstAsync(u => u.Rut == model.Rut);
+                    .FirstAsync(u => u.Rut == rut);
 
                 AppRoles roles = AppRoles.None;
                 if (model.EsPlayer)
@@ -195,7 +223,7 @@ public class UsuariosController : Controller
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UsuarioExists(model.Rut))
+                if (!UsuarioExists(rut))
                 {
                     return NotFound();
                 }

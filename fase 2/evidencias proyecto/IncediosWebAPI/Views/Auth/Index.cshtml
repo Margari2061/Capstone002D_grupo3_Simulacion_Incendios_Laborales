@@ -11,7 +11,7 @@
             <form asp-action="login" method="post">
                 @Html.AntiForgeryToken()
                 <label>Rut</label>
-                <input name="rut" class="form-control" type="text" />
+                <input name="rut" class="form-control" type="rut" />
                 <label class="mt-2">Contraseña</label>
                 <input name="password" class="form-control" type="password" />
                 <div class="d-flex justify-content-end mt-4">
@@ -23,3 +23,8 @@
 </div>
 
 <footer></footer>
+
+<script src="~/js/rutFormat.js"></script>
+<script>
+    rutFormat.init();
+</script>

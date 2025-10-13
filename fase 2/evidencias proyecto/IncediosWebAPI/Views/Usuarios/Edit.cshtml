@@ -4,14 +4,13 @@
 
     <h1>Editar</h1>
 
-    <h4>Usuario @Model.Rut-@Model.Dv</h4>
+    <h4>Usuario @Model.Rut</h4>
     <hr />
     <div class="row w-100">
         <div class="col">
             <form asp-action="Edit">
                 @Html.AntiForgeryToken()
                 <input type="hidden" asp-for="Rut" />
-                <input type="hidden" asp-for="Dv" />
                 <div class="form-group">
                     <label asp-for="Nombre" class="control-label"></label>
                     <input asp-for="Nombre" class="form-control" />

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace IncediosWebAPI.Modules
 {
-    public static class PartidaModule
+    public static class PartidaModule // --> Va a PartidaController
     {
         // ==================== PARTIDAS ====================
 

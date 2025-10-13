@@ -1,68 +1,69 @@
 ﻿@model IncediosWebAPI.Model.DataTransfer.UsuarioRegistroDTO
 
 <div class="d-block ms-3 w-512">
-<h1>Registrar</h1>
+    <h1>Registrar</h1>
 
-<h4>Usuario</h4>
-<hr />
-<div class="row w-100">
-    <div class="col">
-        <form asp-action="Create">
-            @Html.AntiForgeryToken()
-            <div class="form-group">
-                <label asp-for="Rut" class="control-label"></label>
-                <div class="d-flex">
-                    <input asp-for="Rut" class="form-control" />
-                    <span class="mx-2">-</span>
-                    <input asp-for="Dv" class="form-control w-44" />
+    <h4>Usuario</h4>
+    <hr />
+    <div class="row w-100">
+        <div class="col">
+            <form asp-action="Create">
+                @Html.AntiForgeryToken()
+                <div class="form-group">
+                    <label asp-for="Rut" class="control-label"></label>
+                    <input asp-for="Rut" class="form-control" type="rut" />
                 </div>
-            </div>
-            <div class="form-group">
-                <label asp-for="Nombre" class="control-label"></label>
-                <input asp-for="Nombre" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label asp-for="Genero" class="control-label"></label>
-                    <select asp-for="Genero" class="form-control" asp-items="ViewBag.Genero"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="FechaNacimiento" class="control-label"></label>
-                <input asp-for="FechaNacimiento" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label asp-for="Clave" class="control-label"></label>
-                <input asp-for="Clave" class="form-control" type="password" />
-            </div>
-            <div class="form-group">
-                <label asp-for="Piso" class="control-label"></label>
-                <input asp-for="Piso" class="form-control" />
-            </div>
-            <div class="form-group form-check mt-2">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="EsMonitor" /> @Html.DisplayNameFor(model => model.EsMonitor)
-                </label>
-            </div>
-            <div class="form-group">
-                <label name="IdDepartamento" class="control-label">Departamento</label>
-                <select asp-for="IdDepartamento" class ="form-control" asp-items="ViewBag.IdDepartamento"></select>
-            </div>
-            <div class="form-group form-check mt-2 row">
-                <label class="form-check-label col-4">
-                    <input class="form-check-input" asp-for="EsPlayer" /> Jugador
-                </label>
-                <label class="form-check-label col-4">
-                    <input class="form-check-input" asp-for="EsAdmin" /> Administrador
-                </label>
-            </div>
-            <div class="form-group mt-3">
-                <input type="submit" value="Registrar" class="btn btn-primary" />
-            </div>
-        </form>
+                <div class="form-group">
+                    <label asp-for="Nombre" class="control-label"></label>
+                    <input asp-for="Nombre" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="Genero" class="control-label"></label>
+                        <select asp-for="Genero" class="form-control" asp-items="ViewBag.Genero"></select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="FechaNacimiento" class="control-label"></label>
+                    <input asp-for="FechaNacimiento" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="Clave" class="control-label"></label>
+                    <input asp-for="Clave" class="form-control" type="password" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="Piso" class="control-label"></label>
+                    <input asp-for="Piso" class="form-control" />
+                </div>
+                <div class="form-group form-check mt-2">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="EsMonitor" /> @Html.DisplayNameFor(model => model.EsMonitor)
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label name="IdDepartamento" class="control-label">Departamento</label>
+                    <select asp-for="IdDepartamento" class ="form-control" asp-items="ViewBag.IdDepartamento"></select>
+                </div>
+                <div class="form-group form-check mt-2 row">
+                    <label class="form-check-label col-4">
+                        <input class="form-check-input" asp-for="EsPlayer" /> Jugador
+                    </label>
+                    <label class="form-check-label col-4">
+                        <input class="form-check-input" asp-for="EsAdmin" /> Administrador
+                    </label>
+                </div>
+                <div class="form-group mt-3">
+                    <input type="submit" value="Registrar" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
     </div>
+
+    <div class="mt-2">
+        <a asp-action="Index">Volver</a>
+    </div>
+
 </div>
 
-<div class="mt-2">
-    <a asp-action="Index">Volver</a>
-</div>
-
-</div>
+<script src="~/js/rutFormat.js"></script>
+<script>
+    rutFormat.init();
+</script>

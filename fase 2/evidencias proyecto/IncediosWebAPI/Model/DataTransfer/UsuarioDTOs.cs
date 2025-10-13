@@ -5,10 +5,8 @@ namespace IncediosWebAPI.Model.DataTransfer
     // Para registrar nuevos usuarios
     public class UsuarioRegistroDTO
     {
-        public int Rut { get; set; }
-
         [Required]
-        public char Dv { get; set; }
+        public string Rut { get; set; } = "";
 
         [Required, MaxLength(255)]
         public string Nombre { get; set; } = string.Empty;
