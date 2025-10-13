@@ -10,7 +10,6 @@
 *.suo
 *.vsconfig
 appsettings.json
-docker-compose.yml
 
 # Unity
 [Bb]uild/

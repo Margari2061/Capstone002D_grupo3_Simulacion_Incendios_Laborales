@@ -1,0 +1,9 @@
+services:
+  mssql:
+    container_name: mssql
+    image: ghcr.io/bitwarden/mssql:latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Car%&1234
+    ports:
+      - 1433:1433

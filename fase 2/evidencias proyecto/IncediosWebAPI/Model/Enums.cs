@@ -18,3 +18,11 @@ public enum ResultadosPartida
     EscapeTardio,
     Muerte
 }
+
+[Flags]
+public enum AppRoles
+{
+    None=0,
+    Player =1,
+    Admin=2
+}

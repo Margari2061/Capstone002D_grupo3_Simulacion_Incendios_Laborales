@@ -1,1 +1,25 @@
-﻿Hola Mundo
+﻿@{
+    Layout = "_BaseLayout";
+}
+<header></header>
+
+
+<div class="d-flex w-100 justify-content-center align-items-center">
+    <div class="login-card">
+        <div class="title py-2 bg-primary">Conéctate</div>
+        <div class="p-4">
+            <form asp-action="login" method="post">
+                @Html.AntiForgeryToken()
+                <label>Rut</label>
+                <input name="rut" class="form-control" type="text" />
+                <label class="mt-2">Contraseña</label>
+                <input name="password" class="form-control" type="password" />
+                <div class="d-flex justify-content-end mt-4">
+                    <button type="submit" class="btn btn-primary">Autenticarse</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<footer></footer>

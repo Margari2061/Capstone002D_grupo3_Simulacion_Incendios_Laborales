@@ -4,6 +4,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using IncediosWebAPI.Model.IncendioDB;
+using IncediosWebAPI.Model;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,9 @@ builder.Services.AddDbContextPool<IncendioContext>(options => options.UseSqlServ
 
 // Configurar DW -- TODO
 
+
+IConfigurationSection appSettingsSection = builder.Configuration.GetSection("AppSettings");
+AppSettings.Initialize(appSettingsSection);
 // Configurar Autenticacion por Cookie
 builder.Services
     .AddAuthentication(options =>
@@ -46,7 +50,7 @@ app.UseAuthorization();
 app.MapControllerRoute
 (
     name: "default",
-    pattern: "{controller=Auth}/{action=Index}/{id?}"
+    pattern: "{controller=inicio}/{action=index}/{id?}"
 );
 
 //// ==================== DASHBOARD ====================

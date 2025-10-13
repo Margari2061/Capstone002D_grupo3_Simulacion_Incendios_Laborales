@@ -1,66 +1,71 @@
 ﻿@model IncediosWebAPI.Model.IncendioDB.Domain.Usuario
 
-@{
-    ViewData["Title"] = "Details";
-}
+<div class="d-block ms-3">
 
-<h1>Details</h1>
+    <h1>Detalles</h1>
 
-<div>
-    <h4>Usuario</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Dv)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Dv)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Nombre)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Nombre)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Genero)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Genero)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FechaNacimiento)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FechaNacimiento)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Clave)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Clave)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Piso)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Piso)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.EsMonitor)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.EsMonitor)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Departamento)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Departamento.Nombre)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Rut">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <div>
+        <h4>Usuario @Model.Rut-@Model.Dv</h4>
+        <hr />
+        <dl class="row">
+            <dt class = "col-sm-2">
+                @Html.DisplayNameFor(model => model.Nombre)
+            </dt>
+            <dd class = "col-sm-10">
+                @Html.DisplayFor(model => model.Nombre)
+            </dd>
+            <dt class = "col-sm-2">
+                @Html.DisplayNameFor(model => model.Genero)
+            </dt>
+            <dd class = "col-sm-10">
+                @Html.DisplayFor(model => model.Genero)
+            </dd>
+            <dt class = "col-sm-2">
+                @Html.DisplayNameFor(model => model.FechaNacimiento)
+            </dt>
+            <dd class = "col-sm-10">
+                @Html.DisplayFor(model => model.FechaNacimiento)
+            </dd>
+            <dt class = "col-sm-2">
+                @Html.DisplayNameFor(model => model.Piso)
+            </dt>
+            <dd class = "col-sm-10">
+                @Html.DisplayFor(model => model.Piso)
+            </dd>
+            <dt class = "col-sm-2">
+                @Html.DisplayNameFor(model => model.EsMonitor)
+            </dt>
+            <dd class = "col-sm-10">
+                @Html.DisplayFor(model => model.EsMonitor)
+            </dd>
+            <dt class = "col-sm-2">
+                @Html.DisplayNameFor(model => model.Departamento)
+            </dt>
+            <dd class = "col-sm-10">
+                @Html.DisplayFor(model => model.Departamento.Nombre)
+            </dd>
+            <dt class="col-sm-2">
+                Roles
+            </dt>
+            <dd class="col-sm-10">
+                @foreach(IncediosWebAPI.Model.AppRoles roles in Enum.GetValues(typeof(IncediosWebAPI.Model.AppRoles)))
+                {
+                    if(roles == IncediosWebAPI.Model.AppRoles.None)
+                    {
+                        continue;
+                    }
+
+                    if(Model.Roles.HasFlag(roles))
+                    {
+                        string span = $"{roles} | ";
+                        @span
+                    }
+                }
+            </dd>
+        </dl>
+    </div>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model?.Rut">Editar</a> |
+        <a asp-action="Index">Volver</a>
+    </div>
 </div>

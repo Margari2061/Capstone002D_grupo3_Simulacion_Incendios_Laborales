@@ -5,28 +5,23 @@ namespace IncediosWebAPI.Model.DataTransfer
     // Para registrar nuevos usuarios
     public class UsuarioRegistroDTO
     {
-        [Required]
         public int Rut { get; set; }
 
         [Required]
         public char Dv { get; set; }
 
-        [Required]
-        [MaxLength(255)]
+        [Required, MaxLength(255)]
         public string Nombre { get; set; } = string.Empty;
 
         [Required]
-        [EmailAddress]
-        public string Mail { get; set; } = string.Empty;
-
-        public char Genero { get; set; } = 'N'; // M, F, N
+        public Generos Genero { get; set; }
 
         [Required]
-        public DateTime FechaNacimiento { get; set; }
+        public DateOnly FechaNacimiento { get; set; }
 
         [Required]
-        [MinLength(6)]
-        public string Password { get; set; } = string.Empty;
+        [MaxLength(255)]
+        public string Clave { get; set; } = string.Empty;
 
         public int Piso { get; set; }
 
@@ -34,15 +29,16 @@ namespace IncediosWebAPI.Model.DataTransfer
 
         [Required]
         public int IdDepartamento { get; set; }
+
+        public bool EsPlayer { get; set; }
+        public bool EsAdmin { get; set; }
     }
 
     // Para hacer login
     public class UsuarioLoginDTO
     {
         [Required]
-        [EmailAddress]
         public string Rut { get; set; } = string.Empty;
-
         [Required]
         public string Password { get; set; } = string.Empty;
     }

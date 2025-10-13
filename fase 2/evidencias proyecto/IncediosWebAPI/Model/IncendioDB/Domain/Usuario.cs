@@ -15,11 +15,10 @@ namespace IncediosWebAPI.Model.IncendioDB.Domain
         public string Nombre { get; set; } = string.Empty;
 
         [Required]
-        [MaxLength(1)]
         public Generos Genero { get; set; }
 
         [Required]
-        public DateTime FechaNacimiento { get; set; }
+        public DateOnly FechaNacimiento { get; set; }
 
         [Required]
         [MaxLength(255)]
@@ -34,6 +33,8 @@ namespace IncediosWebAPI.Model.IncendioDB.Domain
 
         [ForeignKey(nameof(IdDepartamento))]
         public Departamento? Departamento { get; set; }
+
+        public AppRoles Roles { get; set; }
 
         // Navigation properties
         public List<Partida> Partidas { get; set; } = [];
