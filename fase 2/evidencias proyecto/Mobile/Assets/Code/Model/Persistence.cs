@@ -1,9 +1,15 @@
 ﻿using AideTool;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
+using UnityEngine.Networking;
 
 public class Persistence
 {
+    private const string Host = "https://localhost:7212";
+    private string _tokenKey = "";
+    private DateTime _tokenExpiration;
+
     public string UserRut { get; set; }
 
     public int TargetScenario { get; set; }
@@ -21,7 +27,47 @@ public class Persistence
 
     public IEnumerator LoginRoutine(string username, string password, Action<ResponseResult> callback)
     {
+        using(UnityWebRequest request = AideNetwork.PostJson($"{Host}/api/auth", new {Rut = username, Password=password}))
+        {
+            yield return request.SendWebRequest();
+
+            while (!request.isDone)
+                yield return null;
+
+            string response = request.downloadHandler.text;
+            TokenResponse token = JsonConvert.DeserializeObject<TokenResponse>(response);
+
+            if (token == null || !token.Status)
+            {
+                callback(ResponseResult.Fail(""));
+                yield break;
+            }
+
+            _tokenKey = token.Key;
+            _tokenExpiration = token.Expires;
+        }
+
         callback(ResponseResult.Ok());
-        yield break;
+    }
+
+    public IEnumerator StartRun(Action<ResponseResult> callback)
+    {
+        using(UnityWebRequest request = AideNetwork.PostJson($"{Host}/api/test", ""))
+        {
+            request.SetRequestHeader("Authorization", _tokenKey);
+            yield return request.SendWebRequest();
+
+            while (!request.isDone)
+                yield return null;
+
+            string response = request.downloadHandler.text;
+            if(response != "OK")
+            {
+                callback(ResponseResult.Fail(""));
+                yield break;
+            }
+
+            callback(ResponseResult.Ok());
+        }
     }
 }

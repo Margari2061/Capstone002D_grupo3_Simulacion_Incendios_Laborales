@@ -20,10 +20,14 @@ public class LoginController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _switchTitle;
 
     private string _prevRut;
+    private string _prevPass;
 
     private void Start()
     {
-        _prevRut = PlayerPrefs.GetString(AuthPref, "0");
+        string prefs = PlayerPrefs.GetString(AuthPref, "0&7");
+        string[] teils = prefs.Split('&');
+        _prevRut = teils[0];
+        _prevPass = teils[1];
 
         if(_prevRut == "0")
         {
@@ -37,37 +41,37 @@ public class LoginController : MonoBehaviour
         _switchCanvas.enabled = true;
     }
 
-    public void LoginButton() => StartCoroutine(LoginRoutine());
-
-    private IEnumerator LoginRoutine()
+    public void LoginButton()
     {
         string rut = _rutField.text.ToLower();
         string password = _passwordField.text;
+        StartCoroutine(LoginRoutine(rut, password));
+    }
 
+    public void YesButton() => StartCoroutine(LoginRoutine(_prevRut, _prevPass));
+
+    public void NoButton()
+    {
+        _prevRut = "0";
+        _prevPass = "7";
+        PlayerPrefs.SetString(AuthPref, "0&7");
+        _switchCanvas.enabled = false;
+        _loginCanvas.enabled = true;
+    }
+
+    private IEnumerator LoginRoutine(string rut, string password)
+    {
         ResponseResult response = null;
         yield return StartCoroutine(Persistence.Instance.LoginRoutine(rut, password, (r) => response = r));
 
         if(!response.CheckResponse())
         {
+            _passwordField.text = "";
             yield break;
         }
 
-        PlayerPrefs.SetString(AuthPref, rut);
+        PlayerPrefs.SetString(AuthPref, $"{rut}&{password}");
         Persistence.Instance.UserRut = rut;
         SceneManager.LoadScene((int)Scenes.SceneSelector);
-    }
-
-    public void YesButton()
-    {
-        Persistence.Instance.UserRut = _prevRut;
-        SceneManager.LoadScene((int)Scenes.SceneSelector);
-    }
-
-    public void NoButton()
-    {
-        _prevRut = "0";
-        PlayerPrefs.SetString(AuthPref, "0");
-        _switchCanvas.enabled = false;
-        _loginCanvas.enabled = true;
     }
 }

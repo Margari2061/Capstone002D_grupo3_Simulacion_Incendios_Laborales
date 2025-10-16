@@ -1,4 +1,5 @@
 using AideTool;
+using AideTool.Geometry;
 using AideTool.Input.InputSystem;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -9,9 +10,14 @@ public class PlayerHandler : MonoBehaviour
     [SerializeField] private Animator _animator;
     [SerializeField] private SkinnedMeshRenderer _characterRenderer;
     [SerializeField] private Material _stillMaterial;
-    [EndFoldout, SerializeField] private Material _alertMaterial;
+    [SerializeField] private Material _alertMaterial;
+    [SerializeField] private GameObject _useButton;
+    [EndFoldout, SerializeField] private GameObject _unequipButton;
 
     private CharacterAnimatorHandler _animatorHandler;
+
+    [Foldout("Sensor"), SerializeField] private Vector3 _offset;
+    [EndFoldout, SerializeField] private Vector3 _extents;
 
     [SerializeField] private float _walkingSpeed;
     [SerializeField] private float _runSpeed;
@@ -20,6 +26,9 @@ public class PlayerHandler : MonoBehaviour
     private InputAxis2D MoveInput { get; set; } = new();
     private InputButton UseInput { get; set; } = new();
     private InputButton UnequipButton { get; set; } = new();
+
+    private IUsableObject _usable = null;
+    private Extinguisher _equippedExtinguisher = null;
 
     public void OnMove(InputAction.CallbackContext context) => MoveInput.SetValues(context);
     public void OnUse(InputAction.CallbackContext context) => UseInput.SetValues(context);
@@ -30,12 +39,24 @@ public class PlayerHandler : MonoBehaviour
         _animatorHandler = new(_animator);
         _animatorHandler.Alert.Set(false);
         _animatorHandler.RunningLevel.Set(0);
+
+        _useButton.SetActive(false);
+        _unequipButton.SetActive(false);
     }
 
     private void Update()
     {
         HandleMovement();
-        EquipUniform();
+
+        HandleButtonsVisibility();
+
+        HandleUseButton();
+        HandleUnequipButton();
+    }
+
+    private void FixedUpdate()
+    {
+        HandleSensor();
     }
 
     private void HandleMovement()
@@ -82,11 +103,58 @@ public class PlayerHandler : MonoBehaviour
         transform.rotation = Quaternion.Slerp(current, target, _rotationFactor);
     }
 
-    private void EquipUniform()
+    private void HandleUseButton()
     {
-        if (UseInput.IsPressed)
+        if (_usable != null && UseInput.IsPressed)
         {
-            _characterRenderer.material = _alertMaterial;
+            _usable.Use();
+            //_characterRenderer.material = _alertMaterial;
         }
+    }
+
+    private void HandleUnequipButton()
+    {
+
+    }
+
+    private Box ObjectSensor()
+    {
+        Box box = new Box
+        (
+            transform.position + transform.rotation * _offset,
+            _extents,
+            transform.rotation
+        );
+
+        return box;
+    }
+
+    private void HandleSensor()
+    {
+        Box sensor = ObjectSensor();
+        Collider[] colliders = Physics.OverlapBox(sensor.Origin, sensor.HalfExtents);
+
+        foreach (Collider collider in colliders)
+        {
+            if(collider.transform.TryGetComponent(out IUsableObject obj))
+            {
+                _usable = obj;
+                return;
+            }
+        }
+
+        _usable = null;
+    }
+
+    private void HandleButtonsVisibility()
+    {
+        _useButton.SetActive(_usable != null);
+        _unequipButton.SetActive(_equippedExtinguisher != null);
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        AideGizmo.DrawBox(ObjectSensor());
     }
 }

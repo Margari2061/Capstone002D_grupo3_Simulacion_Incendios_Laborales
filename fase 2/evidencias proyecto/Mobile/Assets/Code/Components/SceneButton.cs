@@ -1,4 +1,6 @@
-﻿using TMPro;
+﻿using AideTool;
+using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -13,8 +15,16 @@ public class SceneButton : MonoBehaviour
     [Header("Variables")]
     [SerializeField] private int _targetScenario;
 
-    public void GoScene()
+    public void GoScene() => StartCoroutine(GoSceneRoutine());
+
+    private IEnumerator GoSceneRoutine()
     {
+        ResponseResult result = null;
+        yield return StartCoroutine(Persistence.Instance.StartRun((r) => result = r));
+
+        if (!result.CheckResponse())
+            yield break;
+
         Persistence.Instance.TargetScenario = _targetScenario;
         SceneManager.LoadScene((int)Scenes.PlayScene);
     }

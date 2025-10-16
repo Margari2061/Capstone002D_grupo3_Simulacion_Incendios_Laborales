@@ -3,6 +3,7 @@ using IncediosWebAPI.Model;
 using IncediosWebAPI.Model.DataTransfer;
 using IncediosWebAPI.Model.IncendioDB;
 using IncediosWebAPI.Model.IncendioDB.Domain;
+using IncediosWebAPI.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -28,7 +29,8 @@ public class AuthController : Controller
         return View();
     }
 
-    [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
+    [AllowAnonymous]
+    [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(UsuarioLoginDTO model)
     {
         if (!ModelState.IsValid)
@@ -82,27 +84,31 @@ public class AuthController : Controller
         return RedirectToAction("index", "inicio");
     }
 
+    [AllowAnonymous]
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync();
         return RedirectToAction("Index");
     }
 
+    [AllowAnonymous]
     [HttpPost, Route("api/auth")]
-    public async Task<IActionResult> ApiLogin(UsuarioLoginDTO model)
+    public async Task<IActionResult> ApiLogin([FromBody] UsuarioLoginDTO model)
     {
+        model.Rut = model.Rut.Replace(".", "");
+
         string[] teils = model
             .Rut
             .Split('-');
 
         if (teils.Length != 2)
-            return RedirectToAction(nameof(Index));
+            return BadRequest();
 
         if (!int.TryParse(teils[0], out int rut))
-            return RedirectToAction(nameof(Index));
+            return BadRequest();
 
         if (!char.TryParse(teils[1], out char dv))
-            return RedirectToAction(nameof(Index));
+            return BadRequest();
 
         Usuario? user = await _context
             .Usuarios
@@ -138,8 +144,16 @@ public class AuthController : Controller
 
         return Ok(new 
         { 
+            Status = true,
             Key = tokenString, 
             Expires = expireDate 
         });
+    }
+
+    [JWTAuthorize]
+    [HttpPost, Route("api/test")]
+    public IActionResult Test()
+    {
+        return Ok("OK");
     }
 }

@@ -175,7 +175,7 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 0
+  m_ChildAlignment: 1
   m_Spacing: 0
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
@@ -306,7 +306,7 @@ PrefabInstance:
     - target: {fileID: 8572859166367810047, guid: 86198e378b4a63e48a03cad60042b4e7, type: 3}
       propertyPath: _background
       value: 
-      objectReference: {fileID: 21300000, guid: b0ab50a7385c66f48be95a993e986334, type: 3}
+      objectReference: {fileID: 21300000, guid: d5096a1f97f06c645b83ca0e0fec9a05, type: 3}
     - target: {fileID: 8572859166367810047, guid: 86198e378b4a63e48a03cad60042b4e7, type: 3}
       propertyPath: _targetScenario
       value: 2
@@ -394,7 +394,7 @@ PrefabInstance:
     - target: {fileID: 9211977941281772689, guid: 86198e378b4a63e48a03cad60042b4e7, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: b0ab50a7385c66f48be95a993e986334, type: 3}
+      objectReference: {fileID: 21300000, guid: d5096a1f97f06c645b83ca0e0fec9a05, type: 3}
     - target: {fileID: 9211977941281772689, guid: 86198e378b4a63e48a03cad60042b4e7, type: 3}
       propertyPath: m_Color.a
       value: 1
@@ -420,6 +420,10 @@ PrefabInstance:
     - target: {fileID: 1725503333391769475, guid: 86198e378b4a63e48a03cad60042b4e7, type: 3}
       propertyPath: m_Name
       value: SceneButton03
+      objectReference: {fileID: 0}
+    - target: {fileID: 1725503333391769475, guid: 86198e378b4a63e48a03cad60042b4e7, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3219821302245376305, guid: 86198e378b4a63e48a03cad60042b4e7, type: 3}
       propertyPath: m_text
@@ -447,7 +451,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8841199922492964829, guid: 86198e378b4a63e48a03cad60042b4e7, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8841199922492964829, guid: 86198e378b4a63e48a03cad60042b4e7, type: 3}
       propertyPath: m_AnchorMin.x
@@ -455,7 +459,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8841199922492964829, guid: 86198e378b4a63e48a03cad60042b4e7, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8841199922492964829, guid: 86198e378b4a63e48a03cad60042b4e7, type: 3}
       propertyPath: m_SizeDelta.x
@@ -495,11 +499,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8841199922492964829, guid: 86198e378b4a63e48a03cad60042b4e7, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 1360.0833
       objectReference: {fileID: 0}
     - target: {fileID: 8841199922492964829, guid: 86198e378b4a63e48a03cad60042b4e7, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -350
       objectReference: {fileID: 0}
     - target: {fileID: 8841199922492964829, guid: 86198e378b4a63e48a03cad60042b4e7, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -558,7 +562,7 @@ PrefabInstance:
     - target: {fileID: 8572859166367810047, guid: 86198e378b4a63e48a03cad60042b4e7, type: 3}
       propertyPath: _background
       value: 
-      objectReference: {fileID: 21300000, guid: b0ab50a7385c66f48be95a993e986334, type: 3}
+      objectReference: {fileID: 21300000, guid: 476f983eaaf4d39488101676d45d655d, type: 3}
     - target: {fileID: 8841199922492964829, guid: 86198e378b4a63e48a03cad60042b4e7, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -642,7 +646,7 @@ PrefabInstance:
     - target: {fileID: 9211977941281772689, guid: 86198e378b4a63e48a03cad60042b4e7, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: b0ab50a7385c66f48be95a993e986334, type: 3}
+      objectReference: {fileID: 21300000, guid: 476f983eaaf4d39488101676d45d655d, type: 3}
     - target: {fileID: 9211977941281772689, guid: 86198e378b4a63e48a03cad60042b4e7, type: 3}
       propertyPath: m_Color.a
       value: 1
