@@ -9,8 +9,6 @@ public class PlayerHandler : MonoBehaviour
     [Foldout("References"), SerializeField] private CharacterController _controller;
     [SerializeField] private Animator _animator;
     [SerializeField] private SkinnedMeshRenderer _characterRenderer;
-    [SerializeField] private Material _stillMaterial;
-    [SerializeField] private Material _alertMaterial;
     [SerializeField] private GameObject _useButton;
     [EndFoldout, SerializeField] private GameObject _unequipButton;
 
@@ -19,7 +17,10 @@ public class PlayerHandler : MonoBehaviour
     [Foldout("Sensor"), SerializeField] private Vector3 _offset;
     [EndFoldout, SerializeField] private Vector3 _extents;
 
-    [SerializeField] private float _walkingSpeed;
+    [Foldout("Extinguisher"), SerializeField] private Vector3 _extinguisherOffset;
+    [SerializeField] private Vector3 _extinguisherDropOffOffset;
+
+    [Foldout("Character"), SerializeField] private float _walkingSpeed;
     [SerializeField] private float _runSpeed;
     [SerializeField] private float _rotationFactor;
 
@@ -27,8 +28,16 @@ public class PlayerHandler : MonoBehaviour
     private InputButton UseInput { get; set; } = new();
     private InputButton UnequipButton { get; set; } = new();
 
+    private bool _uniformWorn = false;
     private IUsableObject _usable = null;
     private Extinguisher _equippedExtinguisher = null;
+
+    private Box ObjectSensor => new Box
+    (
+        transform.position + transform.rotation * _offset,
+        _extents,
+        transform.rotation
+    );
 
     public void OnMove(InputAction.CallbackContext context) => MoveInput.SetValues(context);
     public void OnUse(InputAction.CallbackContext context) => UseInput.SetValues(context);
@@ -52,6 +61,8 @@ public class PlayerHandler : MonoBehaviour
 
         HandleUseButton();
         HandleUnequipButton();
+
+        HandleEquippedExtinguisher();
     }
 
     private void FixedUpdate()
@@ -105,33 +116,41 @@ public class PlayerHandler : MonoBehaviour
 
     private void HandleUseButton()
     {
-        if (_usable != null && UseInput.IsPressed)
+        if (_equippedExtinguisher != null)
         {
-            _usable.Use();
-            //_characterRenderer.material = _alertMaterial;
+            _equippedExtinguisher.UseEquipped(UseInput);
+            return;
         }
+
+        if (UseInput.IsPressed && _usable != null)
+        {
+            _usable.Use(this);
+        }
+
     }
 
     private void HandleUnequipButton()
     {
+        if (_equippedExtinguisher == null)
+            return;
 
-    }
+        if(UnequipButton.IsPressed)
+        {
+            Extinguisher lastExtiguisher = _equippedExtinguisher;
+            _equippedExtinguisher = null;
 
-    private Box ObjectSensor()
-    {
-        Box box = new Box
-        (
-            transform.position + transform.rotation * _offset,
-            _extents,
-            transform.rotation
-        );
-
-        return box;
+            lastExtiguisher.Collider.enabled = true;
+            lastExtiguisher.AnimatorHandler.Active.Set(false);
+            lastExtiguisher.transform.position = transform.position + transform.rotation * _extinguisherDropOffOffset;
+        }
     }
 
     private void HandleSensor()
     {
-        Box sensor = ObjectSensor();
+        if (_equippedExtinguisher != null)
+            return;
+
+        Box sensor = ObjectSensor;
         Collider[] colliders = Physics.OverlapBox(sensor.Origin, sensor.HalfExtents);
 
         foreach (Collider collider in colliders)
@@ -148,13 +167,41 @@ public class PlayerHandler : MonoBehaviour
 
     private void HandleButtonsVisibility()
     {
-        _useButton.SetActive(_usable != null);
+        _useButton.SetActive(_usable != null || _equippedExtinguisher != null);
         _unequipButton.SetActive(_equippedExtinguisher != null);
+    }
+
+    private void HandleEquippedExtinguisher()
+    {
+        if (_equippedExtinguisher == null)
+            return;
+
+        _equippedExtinguisher.transform.position = transform.position + transform.rotation * _extinguisherOffset;
+        _equippedExtinguisher.transform.rotation = transform.rotation;
+    }
+
+    public bool WearUniform(Material shirt, Material uniform)
+    {
+        _uniformWorn = !_uniformWorn;
+        _characterRenderer.material = _uniformWorn switch
+        {
+            true => uniform,
+            _ => shirt
+        };
+
+        return _uniformWorn;
+    }
+
+    public void EquipExtinguisher(Extinguisher extinguisher)
+    {
+        _equippedExtinguisher = extinguisher;
+        _equippedExtinguisher.Collider.enabled = false;
+        _equippedExtinguisher.AnimatorHandler.Active.Set(true);
     }
 
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
-        AideGizmo.DrawBox(ObjectSensor());
+        AideGizmo.DrawBox(ObjectSensor);
     }
 }

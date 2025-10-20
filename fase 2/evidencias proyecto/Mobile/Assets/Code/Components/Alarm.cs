@@ -4,7 +4,7 @@ public class Alarm : MonoBehaviour, IUsableObject
 {
     [SerializeField] private GameObject _alarm;
 
-    public void Use()
+    public void Use(PlayerHandler player)
     {
         bool active = !_alarm.activeInHierarchy;
 

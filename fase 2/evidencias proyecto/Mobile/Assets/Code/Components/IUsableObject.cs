@@ -1,5 +1,5 @@
 ﻿public interface IUsableObject
 {
-    void Use();
+    void Use(PlayerHandler player);
 }
 
