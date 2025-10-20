@@ -71,7 +71,7 @@ public class StatsController : Controller
                 var metricaEvento = new MetricasEvento
                 {
                     Fecha = partida.Fecha.Date,
-                    ProtocolosSeguidos = partida.Resultado == ResultadosPartida.Exitoso && partida.UsoUniforme,
+                    ProtocolosSeguidos = partida.Resultado == ResultadosPartida.CondicionesCumplidas && partida.UsoUniforme,
                     CotizacionEstragos = CalcularContencionEstragos(partida),
                     Lesionados = partida.Heridas > 50 ? 1 : 0
                 };
@@ -152,7 +152,7 @@ public class StatsController : Controller
             .CountAsync(p => p.Fecha >= fechaLimite && p.Resultado != ResultadosPartida.EnProgreso);
 
         var partidasExitosas = await _context.Partidas
-            .CountAsync(p => p.Fecha >= fechaLimite && p.Resultado == ResultadosPartida.Exitoso);
+            .CountAsync(p => p.Fecha >= fechaLimite && p.Resultado == ResultadosPartida.CondicionesCumplidas);
 
         var partidasConLesionados = await _context.Partidas
             .CountAsync(p => p.Fecha >= fechaLimite && p.Heridas > 50);
@@ -189,18 +189,35 @@ public class StatsController : Controller
         };
     }
 
+    // CORRECCIÓN: Método sin RatioExtincion
     private static int CalcularContencionEstragos(Partida partida)
     {
         var puntuacion = 0;
 
-        if (partida.Resultado == ResultadosPartida.Exitoso) puntuacion += 30;
-        if (partida.UsoUniforme) puntuacion += 25;
-        if (partida.UsoAlarma) puntuacion += 20;
-        if (partida.RatioExtincion >= 1.0) puntuacion += 15;
-        if (partida.UsoInadecuadoExtintores == 0) puntuacion += 10;
+        // +30 puntos por éxito en la partida
+        if (partida.Resultado == ResultadosPartida.CondicionesCumplidas)
+            puntuacion += 30;
 
+        // +25 puntos por usar uniforme
+        if (partida.UsoUniforme)
+            puntuacion += 25;
+
+        // +20 puntos por usar alarma
+        if (partida.UsoAlarma)
+            puntuacion += 20;
+
+        // +15 puntos por buen uso de extintores (pocos usos inadecuados)
+        if (partida.UsoInadecuadoExtintores <= 1)
+            puntuacion += 15;
+
+        // +10 puntos por apagar muchos fuegos
+        if (partida.FuegosApagados >= 3)
+            puntuacion += 10;
+
+        // -5 puntos por cada 10% de daño recibido
         puntuacion -= (partida.Heridas / 10) * 5;
 
+        // Asegurar que esté entre 0-100
         return Math.Clamp(puntuacion, 0, 100);
     }
 }
