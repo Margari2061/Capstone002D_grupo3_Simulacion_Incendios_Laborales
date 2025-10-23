@@ -1,6 +1,7 @@
 using AideTool;
 using AideTool.Geometry;
 using AideTool.Input.InputSystem;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -9,6 +10,8 @@ public class PlayerHandler : MonoBehaviour
     [Foldout("References"), SerializeField] private CharacterController _controller;
     [SerializeField] private Animator _animator;
     [SerializeField] private SkinnedMeshRenderer _characterRenderer;
+    [SerializeField] private SkinnedMeshRenderer[] _bodyRenderers;
+    [SerializeField] private AudioSource _painSound;
     [SerializeField] private GameObject _useButton;
     [EndFoldout, SerializeField] private GameObject _unequipButton;
 
@@ -23,6 +26,9 @@ public class PlayerHandler : MonoBehaviour
     [Foldout("Character"), SerializeField] private float _walkingSpeed;
     [SerializeField] private float _runSpeed;
     [SerializeField] private float _rotationFactor;
+    [SerializeField] private int _health = 5;
+
+    private bool _canReceiveDamage = true;
 
     private InputAxis2D MoveInput { get; set; } = new();
     private InputButton UseInput { get; set; } = new();
@@ -31,6 +37,8 @@ public class PlayerHandler : MonoBehaviour
     private bool _uniformWorn = false;
     private IUsableObject _usable = null;
     private Extinguisher _equippedExtinguisher = null;
+
+    private float _runningTime = 0f;
 
     private Box ObjectSensor => new Box
     (
@@ -91,9 +99,19 @@ public class PlayerHandler : MonoBehaviour
             if (x > 0.5f || z > 0.5f)
             {
                 _animatorHandler.RunningLevel.Set(2);
+                _runningTime += Time.deltaTime;
+
+                if(_runningTime >= 0.6f)
+                {
+                    _runningTime = 0f;
+                    Persistence.Instance.Data.Desasosiego++;
+                }
+
                 return _runSpeed;
             }
+
             _animatorHandler.RunningLevel.Set(1);
+            _runningTime = 0f;
             return _walkingSpeed;
         }
 
@@ -150,8 +168,7 @@ public class PlayerHandler : MonoBehaviour
         if (_equippedExtinguisher != null)
             return;
 
-        Box sensor = ObjectSensor;
-        Collider[] colliders = Physics.OverlapBox(sensor.Origin, sensor.HalfExtents);
+        Collider[] colliders = Physics.OverlapBox(ObjectSensor.Origin, ObjectSensor.HalfExtents);
 
         foreach (Collider collider in colliders)
         {
@@ -197,6 +214,45 @@ public class PlayerHandler : MonoBehaviour
         _equippedExtinguisher = extinguisher;
         _equippedExtinguisher.Collider.enabled = false;
         _equippedExtinguisher.AnimatorHandler.Active.Set(true);
+    }
+
+    [ContextMenu(nameof(ReceiveDamage))]
+    public void ReceiveDamage()
+    {
+        if(_canReceiveDamage)
+            StartCoroutine(ReceiveDamageRoutine());
+    }
+
+    private IEnumerator ReceiveDamageRoutine()
+    {
+        _canReceiveDamage = false;
+        Persistence.Instance.Data.Heridas++;
+        _health--;
+
+        if(_health <= 0)
+        {
+            GameEvents.GameOver(false);
+            yield break;
+        }
+
+
+        _painSound.Play();
+
+        foreach(Renderer renderer in _bodyRenderers)
+        {
+            renderer.material.color = Color.red;
+        }
+
+        yield return new WaitForSeconds(0.3f);
+
+        foreach (Renderer renderer in _bodyRenderers)
+        {
+            renderer.material.color = Color.white;
+        }
+
+        yield return new WaitForSeconds(1f);
+
+        _canReceiveDamage = true;
     }
 
     private void OnDrawGizmosSelected()

@@ -11,8 +11,19 @@ public class Persistence
     private DateTime _tokenExpiration;
 
     public string UserRut { get; set; }
+    public RunDataTransfer Data { get; private set; }
+    public bool FinalTransferReady { get; private set; } = false;
 
-    public int TargetScenario { get; set; }
+    public int TargetScenario 
+    {
+        get => Data.NivelId;
+        set => Data.NivelId = value;
+    }
+
+    private Persistence()
+    {
+        Data = new();
+    }
 
     private static Persistence _instance;
     public static Persistence Instance
@@ -68,6 +79,26 @@ public class Persistence
             }
 
             callback(ResponseResult.Ok());
+        }
+    }
+
+    public IEnumerator FinishRun()
+    {
+        using (UnityWebRequest request = AideNetwork.PostJson($"{Host}/api/test", ""))
+        {
+            request.SetRequestHeader("Authorization", _tokenKey);
+            yield return request.SendWebRequest();
+
+            while (!request.isDone)
+                yield return null;
+
+            string response = request.downloadHandler.text;
+            if (response != "OK")
+            {
+                yield break;
+            }
+
+            FinalTransferReady = true;
         }
     }
 }

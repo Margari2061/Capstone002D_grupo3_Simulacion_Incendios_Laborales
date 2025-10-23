@@ -192,7 +192,7 @@ public class IncendioContext : DbContext
                 Id = 1,
                 Nombre = "Incendio Oficina Nivel 1",
                 FuegosApagadosEsperados = 5,
-                ExtintoresUsadosEsperados = 1,
+                ExtintoresUsadosEsperados = 2,
                 UsoAlarmaEsperado = true
             },
             new()
@@ -200,7 +200,7 @@ public class IncendioContext : DbContext
                 Id = 2,
                 Nombre = "Fuego Cocina",
                 FuegosApagadosEsperados = 3,
-                ExtintoresUsadosEsperados = 2,
+                ExtintoresUsadosEsperados = 1,
                 UsoAlarmaEsperado = false
             }
         ];

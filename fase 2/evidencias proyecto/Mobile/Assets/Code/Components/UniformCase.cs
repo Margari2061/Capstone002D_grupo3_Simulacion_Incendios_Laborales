@@ -10,7 +10,8 @@ public class UniformCase : MonoBehaviour, IUsableObject
 
     public void Use(PlayerHandler player)
     {
-        bool  worn = player.WearUniform(_shirtMaterial, _uniformMaterial);
+        bool worn = player.WearUniform(_shirtMaterial, _uniformMaterial);
+        Persistence.Instance.Data.UsoUniforme = worn;
         _renderer.material = worn switch
         {
             true => _blackMaterial,

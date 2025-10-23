@@ -5,3 +5,13 @@
     SceneSelector,
     PlayScene
 }
+
+public enum RunResults
+{
+    EnProgreso,
+    CondicionesCumplidas,
+    EscapeSeguro,
+    EscapeInmediato,
+    EscapeTardio,
+    Muerte
+}

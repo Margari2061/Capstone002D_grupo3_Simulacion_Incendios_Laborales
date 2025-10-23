@@ -2,12 +2,16 @@
 
 public class Alarm : MonoBehaviour, IUsableObject
 {
-    [SerializeField] private GameObject _alarm;
+    [SerializeField] private GameObject[] _setToActive;
 
     public void Use(PlayerHandler player)
     {
-        bool active = !_alarm.activeInHierarchy;
+        bool active = !_setToActive[0].activeInHierarchy;
+        Persistence.Instance.Data.UsoAlarma = active;
 
-        _alarm.SetActive(active);
+        foreach (GameObject obj in _setToActive)
+        {
+            obj.SetActive(active);
+        }
     }
 }
