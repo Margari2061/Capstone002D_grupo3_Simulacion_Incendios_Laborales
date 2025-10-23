@@ -70,8 +70,11 @@ public class LoginController : MonoBehaviour
             yield break;
         }
 
+        string[] teils = rut.Split('-');
+        int rutNum = int.Parse(teils[0].Replace(".", ""));
+
         PlayerPrefs.SetString(AuthPref, $"{rut}&{password}");
-        Persistence.Instance.UserRut = rut;
+        Persistence.Instance.UserRut = rutNum;
         SceneManager.LoadScene((int)Scenes.SceneSelector);
     }
 }

@@ -9,11 +9,12 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace IncediosWebAPI.Controllers;
 
-[AllowAnonymous]
 public class AuthController : Controller
 {
     private readonly IncendioContext _context;

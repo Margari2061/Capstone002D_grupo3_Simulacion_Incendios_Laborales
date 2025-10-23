@@ -10,7 +10,7 @@ public class Persistence
     private string _tokenKey = "";
     private DateTime _tokenExpiration;
 
-    public string UserRut { get; set; }
+    public int UserRut { get; set; }
     public RunDataTransfer Data { get; private set; }
     public bool FinalTransferReady { get; private set; } = false;
 
@@ -63,7 +63,13 @@ public class Persistence
 
     public IEnumerator StartRun(Action<ResponseResult> callback)
     {
-        using(UnityWebRequest request = AideNetwork.PostJson($"{Host}/api/test", ""))
+        RunCreateRequest data = new()
+        {
+            RutUsuario = UserRut,
+            Nivel = TargetScenario
+        };
+
+        using(UnityWebRequest request = AideNetwork.PostJson($"{Host}/api/runStart", data))
         {
             request.SetRequestHeader("Authorization", _tokenKey);
             yield return request.SendWebRequest();
@@ -72,12 +78,15 @@ public class Persistence
                 yield return null;
 
             string response = request.downloadHandler.text;
-            if(response != "OK")
+            RunCreateResponse responseDeserial = JsonConvert.DeserializeObject<RunCreateResponse>(response);
+
+            if(responseDeserial == null)
             {
                 callback(ResponseResult.Fail(""));
                 yield break;
             }
 
+            Data.PartidaId = responseDeserial.PartidaId;
             callback(ResponseResult.Ok());
         }
     }

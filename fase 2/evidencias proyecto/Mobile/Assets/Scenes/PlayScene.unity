@@ -234,7 +234,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e67cda6dc83ee1c4d94a3f378a26ba63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameoverController
-  _text: {fileID: 0}
+  _text: {fileID: 1885980136}
 --- !u!4 &69801746 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8387390202173503100, guid: 47f366f61974f8042a9a51460b5ccee3, type: 3}
@@ -4452,7 +4452,7 @@ GameObject:
   - component: {fileID: 1394120564}
   - component: {fileID: 1394120563}
   m_Layer: 5
-  m_Name: Image (1)
+  m_Name: BodyImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4795,7 +4795,7 @@ GameObject:
   - component: {fileID: 1582065204}
   - component: {fileID: 1582065203}
   m_Layer: 5
-  m_Name: Image
+  m_Name: BorderImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5325,7 +5325,7 @@ GameObject:
   - component: {fileID: 1686977172}
   - component: {fileID: 1686977171}
   m_Layer: 5
-  m_Name: Button
+  m_Name: PlayAgainButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5394,7 +5394,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1686977172}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 55561680}
+        m_TargetAssemblyTypeName: GameoverController, Assembly-CSharp
+        m_MethodName: PlayAgain
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1686977172
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5446,7 +5458,7 @@ GameObject:
   - component: {fileID: 1718599584}
   - component: {fileID: 1718599583}
   m_Layer: 5
-  m_Name: Button (1)
+  m_Name: QuitButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5515,7 +5527,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1718599584}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 55561680}
+        m_TargetAssemblyTypeName: GameoverController, Assembly-CSharp
+        m_MethodName: Quit
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1718599584
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6209,7 +6233,7 @@ GameObject:
   - component: {fileID: 1809915684}
   - component: {fileID: 1809915683}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: TitleText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

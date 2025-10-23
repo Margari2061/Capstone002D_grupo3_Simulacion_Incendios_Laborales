@@ -19,13 +19,13 @@ public class SceneButton : MonoBehaviour
 
     private IEnumerator GoSceneRoutine()
     {
+        Persistence.Instance.TargetScenario = _targetScenario;
         ResponseResult result = null;
         yield return StartCoroutine(Persistence.Instance.StartRun((r) => result = r));
 
         if (!result.CheckResponse())
             yield break;
 
-        Persistence.Instance.TargetScenario = _targetScenario;
         SceneManager.LoadScene((int)Scenes.PlayScene);
     }
 

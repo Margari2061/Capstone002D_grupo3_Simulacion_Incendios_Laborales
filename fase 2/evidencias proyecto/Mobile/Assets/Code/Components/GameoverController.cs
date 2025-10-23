@@ -10,7 +10,11 @@ public class GameoverController : MonoBehaviour
 
     private readonly Dictionary<RunResults, string> _textOptions = new()
     {
-
+        { RunResults.CondicionesCumplidas, "" },
+        { RunResults.EscapeInmediato, "" },
+        { RunResults.EscapeSeguro, "" },
+        { RunResults.EscapeTardio, "" },
+        { RunResults.Muerte, "" },
     };
 
     public void SetTexts(RunResults result)

@@ -12,22 +12,14 @@ namespace IncediosWebAPI.Controllers;
 public class PartidaController : Controller
 {
     private readonly IncendioContext _context;
-    private readonly ILogger<PartidaController> _logger;
 
-    public PartidaController(IncendioContext context, ILogger<PartidaController> logger)
+    public PartidaController(IncendioContext context)
     {
         _context = context;
-        _logger = logger;
-    }
-
-    // ==================== VISTA PRINCIPAL ====================
-    public IActionResult Index()
-    {
-        return View();
     }
 
     // ==================== CREAR NUEVA PARTIDA ====================
-    [HttpPost]
+    [HttpPost, Route("api/runStart")]
     public async Task<IActionResult> CrearPartida([FromBody] PartidaCreateDTO partidaDto)
     {
         try
@@ -82,13 +74,12 @@ public class PartidaController : Controller
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al crear partida");
             return StatusCode(500, new { error = $"Error al comenzar partida: {ex.Message}" });
         }
     }
 
     // ==================== FINALIZAR PARTIDA ====================
-    [HttpPost]
+    [HttpPost, Route("api/runEnd")]
     public async Task<IActionResult> FinalizarPartida([FromBody] PartidaFinalizarDTO finalizarDto)
     {
         try
@@ -148,137 +139,88 @@ public class PartidaController : Controller
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al finalizar partida");
             return StatusCode(500, new { error = $"Error al finalizar partida: {ex.Message}" });
         }
     }
 
-    // ==================== OBTENER PARTIDAS POR USUARIO ====================
-    [HttpGet("usuarios/{rut}/partidas")]
-    public async Task<IActionResult> GetPartidasPorUsuario(int rut)
-    {
-        try
-        {
-            var usuarioExiste = await _context.Usuarios
-                .AnyAsync(u => u.Rut == rut);
-
-            if (!usuarioExiste)
-            {
-                return NotFound(new { error = $"Usuario con RUT {rut} no encontrado" });
-            }
-
-            var partidas = await _context.Partidas
-                .Where(p => p.RutUsuario == rut)
-                .OrderByDescending(p => p.Fecha)
-                .Select(p => new
-                {
-                    Id = p.Id,
-                    NivelId = p.IdNivel,
-                    TiempoJugadoSegundos = (int)p.TiempoJugado.TotalSeconds,
-                    Resultado = p.Resultado,
-                    FuegosApagados = p.FuegosApagados,
-                    ExtintoresUsados = p.ExtintoresUsados,
-                    UsoInadecuadoExtintores = p.UsoInadecuadoExtintores,
-                    UsoAlarma = p.UsoAlarma,
-                    UsoUniforme = p.UsoUniforme,
-                    Heridas = p.Heridas,
-                    Desasosiego = p.Desasosiego,
-                    Fecha = p.Fecha
-                })
-                .ToListAsync();
-
-            return Ok(new
-            {
-                totalPartidas = partidas.Count,
-                partidas = partidas
-            });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error al obtener partidas del usuario {Rut}", rut);
-            return StatusCode(500, new { error = $"Error al obtener partidas: {ex.Message}" });
-        }
-    }
-
+    
     // ==================== OBTENER ESTADÍSTICAS GENERALES ====================
-    [HttpGet("estadisticas")]
-    public async Task<IActionResult> GetEstadisticasGenerales()
-    {
-        try
-        {
-            var totalPartidas = await _context.Partidas.CountAsync();
-            var partidasExitosas = await _context.Partidas
-                .CountAsync(p => p.Resultado == ResultadosPartida.CondicionesCumplidas);
+    //[HttpGet("estadisticas")]
+    //public async Task<IActionResult> GetEstadisticasGenerales()
+    //{
+    //    try
+    //    {
+    //        var totalPartidas = await _context.Partidas.CountAsync();
+    //        var partidasExitosas = await _context.Partidas
+    //            .CountAsync(p => p.Resultado == ResultadosPartida.CondicionesCumplidas);
 
-            var promedioTiempo = await _context.Partidas
-                .AverageAsync(p => p.TiempoJugado.TotalSeconds);
+    //        var promedioTiempo = await _context.Partidas
+    //            .AverageAsync(p => p.TiempoJugado.TotalSeconds);
 
-            var promedioFuegosApagados = await _context.Partidas
-                .AverageAsync(p => p.FuegosApagados);
+    //        var promedioFuegosApagados = await _context.Partidas
+    //            .AverageAsync(p => p.FuegosApagados);
 
-            var promedioHeridas = await _context.Partidas
-                .AverageAsync(p => p.Heridas);
+    //        var promedioHeridas = await _context.Partidas
+    //            .AverageAsync(p => p.Heridas);
 
-            var partidasSinDanio = await _context.Partidas
-                .CountAsync(p => p.Heridas == 0);
+    //        var partidasSinDanio = await _context.Partidas
+    //            .CountAsync(p => p.Heridas == 0);
 
-            return Ok(new
-            {
-                totalPartidas,
-                partidasExitosas,
-                partidasSinDanio,
-                tasaExito = totalPartidas > 0 ? Math.Round((double)partidasExitosas / totalPartidas * 100, 2) : 0,
-                tasaSinDanio = totalPartidas > 0 ? Math.Round((double)partidasSinDanio / totalPartidas * 100, 2) : 0,
-                promedioTiempoSegundos = Math.Round(promedioTiempo, 2),
-                promedioFuegosApagados = Math.Round(promedioFuegosApagados, 2),
-                promedioHeridas = Math.Round(promedioHeridas, 2)
-            });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error al obtener estadísticas generales");
-            return StatusCode(500, new { error = $"Error al obtener estadísticas: {ex.Message}" });
-        }
-    }
+    //        return Ok(new
+    //        {
+    //            totalPartidas,
+    //            partidasExitosas,
+    //            partidasSinDanio,
+    //            tasaExito = totalPartidas > 0 ? Math.Round((double)partidasExitosas / totalPartidas * 100, 2) : 0,
+    //            tasaSinDanio = totalPartidas > 0 ? Math.Round((double)partidasSinDanio / totalPartidas * 100, 2) : 0,
+    //            promedioTiempoSegundos = Math.Round(promedioTiempo, 2),
+    //            promedioFuegosApagados = Math.Round(promedioFuegosApagados, 2),
+    //            promedioHeridas = Math.Round(promedioHeridas, 2)
+    //        });
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        return StatusCode(500, new { error = $"Error al obtener estadísticas: {ex.Message}" });
+    //    }
+    //}
 
     // ==================== OBTENER DETALLE DE PARTIDA ====================
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetPartida(int id)
-    {
-        try
-        {
-            var partida = await _context.Partidas
-                .Include(p => p.Usuario)
-                .Include(p => p.Nivel)
-                .FirstOrDefaultAsync(p => p.Id == id);
+    //[HttpGet("{id}")]
+    //public async Task<IActionResult> GetPartida(int id)
+    //{
+    //    try
+    //    {
+    //        var partida = await _context.Partidas
+    //            .Include(p => p.Usuario)
+    //            .Include(p => p.Nivel)
+    //            .FirstOrDefaultAsync(p => p.Id == id);
 
-            if (partida == null)
-            {
-                return NotFound(new { error = $"Partida con ID {id} no encontrada" });
-            }
+    //        if (partida == null)
+    //        {
+    //            return NotFound(new { error = $"Partida con ID {id} no encontrada" });
+    //        }
 
-            return Ok(new
-            {
-                partida.Id,
-                partida.RutUsuario,
-                Usuario = partida.Usuario?.Nombre,
-                Nivel = partida.Nivel?.Nombre,
-                partida.TiempoJugado,
-                partida.Resultado,
-                partida.FuegosApagados,
-                partida.ExtintoresUsados,
-                partida.UsoInadecuadoExtintores,
-                partida.UsoAlarma,
-                partida.UsoUniforme,
-                partida.Heridas,
-                partida.Desasosiego,
-                partida.Fecha
-            });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error al obtener partida {PartidaId}", id);
-            return StatusCode(500, new { error = $"Error al obtener partida: {ex.Message}" });
-        }
-    }
+    //        return Ok(new
+    //        {
+    //            partida.Id,
+    //            partida.RutUsuario,
+    //            Usuario = partida.Usuario?.Nombre,
+    //            Nivel = partida.Nivel?.Nombre,
+    //            partida.TiempoJugado,
+    //            partida.Resultado,
+    //            partida.FuegosApagados,
+    //            partida.ExtintoresUsados,
+    //            partida.UsoInadecuadoExtintores,
+    //            partida.UsoAlarma,
+    //            partida.UsoUniforme,
+    //            partida.Heridas,
+    //            partida.Desasosiego,
+    //            partida.Fecha
+    //        });
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        return StatusCode(500, new { error = $"Error al obtener partida: {ex.Message}" });
+    //    }
+    //}
 }

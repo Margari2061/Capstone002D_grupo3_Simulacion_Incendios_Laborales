@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Components.Sections;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace IncediosWebAPI.Model.DataTransfer
 {
