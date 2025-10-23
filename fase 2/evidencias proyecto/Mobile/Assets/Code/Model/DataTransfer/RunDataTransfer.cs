@@ -1,7 +1,6 @@
 ﻿public class RunDataTransfer
 {
-    public int PartidaId { get; set; }
-    public int NivelId { get; set; }
+    public int Id { get; set; }
     public RunResults Resultado { get; set; }
     public int FuegosApagados { get; set; }
     public int ExtintoresUsados { get; set; }
@@ -42,8 +41,7 @@
 
     public RunDataTransfer()
     {
-        PartidaId = 0;
-        NivelId = 0;
+        Id = 0;
         Resultado = RunResults.EnProgreso;
         FuegosApagados = 0;
         ExtintoresUsados = 0;

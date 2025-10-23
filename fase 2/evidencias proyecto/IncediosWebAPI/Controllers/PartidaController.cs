@@ -99,8 +99,11 @@ public class PartidaController : Controller
                 return BadRequest(new { error = "Esta partida ya fue finalizada anteriormente" });
             }
 
+            DateTime now = DateTime.UtcNow;
+            TimeSpan played = now - partida.Fecha;
+
             // Actualizar con los resultados finales
-            partida.TiempoJugado = finalizarDto.TiempoJugado;
+            partida.TiempoJugado = played;
             partida.Resultado = finalizarDto.Resultado;
             partida.FuegosApagados = finalizarDto.FuegosApagados;
             partida.ExtintoresUsados = finalizarDto.ExtintoresUsados;
@@ -112,30 +115,7 @@ public class PartidaController : Controller
 
             await _context.SaveChangesAsync();
 
-            // Calcular eficiencia basada en el daño recibido
-            string eficiencia = partida.Heridas == 0 ? "PERFECTA" :
-                              partida.Heridas <= 25 ? "ALTA" :
-                              partida.Heridas <= 50 ? "MEDIA" : "BAJA";
-
-            // Obtener descripción del resultado
-            string descripcionResultado = finalizarDto.Resultado switch
-            {
-                ResultadosPartida.CondicionesCumplidas => "Condiciones Cumplidas",
-                ResultadosPartida.EscapeSeguro => "Escape seguro",
-                ResultadosPartida.EscapeInmediato => "Escape inmediato",
-                ResultadosPartida.EscapeTardio => "Escape tardío",
-                ResultadosPartida.Muerte => "Muerte",
-                ResultadosPartida.EnProgreso => "En progreso",
-                _ => "Desconocido"
-            };
-
-            return Ok(new
-            {
-                message = "Partida finalizada exitosamente",
-                resultado = descripcionResultado,
-                eficiencia = eficiencia,
-                partidaId = partida.Id
-            });
+            return Ok();
         }
         catch (Exception ex)
         {

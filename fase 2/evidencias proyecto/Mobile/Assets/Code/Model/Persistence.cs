@@ -14,11 +14,7 @@ public class Persistence
     public RunDataTransfer Data { get; private set; }
     public bool FinalTransferReady { get; private set; } = false;
 
-    public int TargetScenario 
-    {
-        get => Data.NivelId;
-        set => Data.NivelId = value;
-    }
+    public int TargetScenario { get; set; }
 
     private Persistence()
     {
@@ -86,7 +82,7 @@ public class Persistence
                 yield break;
             }
 
-            Data.PartidaId = responseDeserial.PartidaId;
+            Data.Id = responseDeserial.PartidaId;
             callback(ResponseResult.Ok());
         }
     }
