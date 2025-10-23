@@ -11,12 +11,10 @@ namespace IncediosWebAPI.Controllers;
 public class InicioController : Controller
 {
     private readonly IncendioContext _context;
-    private readonly ILogger<InicioController> _logger;
 
-    public InicioController(IncendioContext context, ILogger<InicioController> logger)
+    public InicioController(IncendioContext context)
     {
         _context = context;
-        _logger = logger;
     }
 
     public async Task<IActionResult> Index()
@@ -28,7 +26,6 @@ public class InicioController : Controller
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al cargar el dashboard");
             TempData["Error"] = "Error al cargar los datos del dashboard";
             return View(new DashboardViewModel());
         }
@@ -45,7 +42,6 @@ public class InicioController : Controller
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al obtener datos actualizados del dashboard");
             return BadRequest(new { error = "Error al cargar datos" });
         }
     }

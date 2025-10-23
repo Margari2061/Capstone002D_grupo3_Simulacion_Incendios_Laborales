@@ -16,21 +16,23 @@ IConfigurationSection appSettingsSection = builder.Configuration.GetSection("App
 AppSettings.Initialize(appSettingsSection);
 
 
-// ✅ CORREGIDO: Configuración simplificada de Autenticación
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.LoginPath = "/Auth";  // ✅ Mayúscula
-        options.AccessDeniedPath = "/Auth";
-        options.ExpireTimeSpan = TimeSpan.FromDays(1);
-    });
+// Configuración simplificada de Autenticación
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+})
+.AddCookie(options =>
+{
+    options.LoginPath = "/auth/index";
+});
 
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// ✅ CORREGIDO: HSTS solo en PRODUCCIÓN
-if (!app.Environment.IsDevelopment())  // ✅ Agregar "!"
+// CORREGIDO: HSTS solo en PRODUCCIÓN
+if (!app.Environment.IsDevelopment())  // Agregar "!"
 {
     app.UseHsts();
 }
@@ -43,10 +45,9 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// ✅ CORREGIDO: Ruta default a AUTH (no a inicio)
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Auth}/{action=Index}/{id?}"  // ✅ Auth con mayúscula
+    pattern: "{controller=inicio}/{action=index}/{id?}" 
 );
 
 app.Run();

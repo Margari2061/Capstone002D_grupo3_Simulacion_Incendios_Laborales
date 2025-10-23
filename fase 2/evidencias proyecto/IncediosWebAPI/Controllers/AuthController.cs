@@ -8,21 +8,18 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace IncediosWebAPI.Controllers;
 
+[AllowAnonymous]
 public class AuthController : Controller
 {
     private readonly IncendioContext _context;
-    private readonly ILogger<AuthController> _logger;
 
-    public AuthController(IncendioContext context, ILogger<AuthController> logger)
+    public AuthController(IncendioContext context)
     {
         _context = context;
-        _logger = logger;
     }
 
     [AllowAnonymous]
@@ -71,7 +68,6 @@ public class AuthController : Controller
 
             if (user == null || user.Clave != model.Password.Hash())
             {
-                _logger.LogWarning("Intento de login fallido para RUT: {Rut}", rut);
                 AddModelError("RUT o contraseña incorrectos");
                 return View("Index", model);
             }
@@ -85,10 +81,7 @@ public class AuthController : Controller
             // Crear claims
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Rut.ToString()),
-                new Claim(ClaimTypes.Name, user.Nombre),
-                new Claim("Rut", user.Rut.ToString()),
-                new Claim("Dv", user.Dv.ToString())
+                new Claim("login", teils[0]),
             };
 
             // Agregar roles
@@ -96,29 +89,18 @@ public class AuthController : Controller
             {
                 if (role != AppRoles.None && user.Roles.HasFlag(role))
                 {
-                    claims.Add(new Claim(ClaimTypes.Role, role.ToString()));
+                    claims.Add(new Claim("role", role.ToString()));
                 }
             }
 
-            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var authProperties = new AuthenticationProperties
-            {
-                IsPersistent = true,
-                ExpiresUtc = DateTimeOffset.UtcNow.AddHours(24)
-            };
+            var claimsIdentity = new ClaimsIdentity(claims, "Basic");
 
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity),
-                authProperties);
-
-            _logger.LogInformation("Login exitoso: {Nombre} ({Rut})", user.Nombre, rut);
+            await HttpContext.SignInAsync(new ClaimsPrincipal(claimsIdentity));
 
             return RedirectToAction("Index", "Inicio");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error en login para RUT: {Rut}", model.Rut);
             AddModelError("Error interno del sistema");
             return View("Index", model);
         }
@@ -126,9 +108,8 @@ public class AuthController : Controller
 
     public async Task<IActionResult> Logout()
     {
-        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        _logger.LogInformation("Logout exitoso");
-        return RedirectToAction("Index");
+        await HttpContext.SignOutAsync();
+        return RedirectToAction("index", "auth");
     }
 
     // ... (método ApiLogin se mantiene igual) ...
