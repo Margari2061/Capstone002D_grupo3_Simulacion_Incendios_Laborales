@@ -15,8 +15,6 @@ namespace IncediosWebAPI.Model.DataTransfer
     public class PartidaFinalizarDTO
     { 
         public int Id { get; set; }
-
-        public TimeSpan TiempoJugado { get; set; }
                     
         public ResultadosPartida Resultado { get; set; }
         

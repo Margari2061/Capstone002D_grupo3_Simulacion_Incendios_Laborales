@@ -2581,7 +2581,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayController
   _player: {fileID: 576202710}
   _firePrefab: {fileID: 103361272862866778, guid: 22ddf098742ef454db255c3fbe6fa373, type: 3}
-  _gameoverCanvas: {fileID: 0}
+  _gameoverCanvas: {fileID: 55561680}
   _minStartTime: 5
   _maxStartTime: 10
   _levelCheck: 1

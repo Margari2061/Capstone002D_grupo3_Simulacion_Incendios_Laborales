@@ -115,7 +115,7 @@ public class PartidaController : Controller
 
             await _context.SaveChangesAsync();
 
-            return Ok();
+            return Ok("OK");
         }
         catch (Exception ex)
         {

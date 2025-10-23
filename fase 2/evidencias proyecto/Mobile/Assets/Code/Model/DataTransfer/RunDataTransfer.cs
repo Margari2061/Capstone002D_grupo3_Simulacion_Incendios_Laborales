@@ -66,10 +66,10 @@
         if(ExtintoresUsados == 0)
             return RunResults.EscapeInmediato;
 
-        if (FuegosApagados < maxFires)
+        if (Heridas == 0 && FuegosApagados < maxFires)
             return RunResults.EscapeSeguro;
 
-        if(UsoUniforme && FuegosApagados == maxFires)
+        if(Heridas == 0 && UsoUniforme && FuegosApagados == maxFires)
             return RunResults.CondicionesCumplidas;
 
         return RunResults.EscapeTardio;

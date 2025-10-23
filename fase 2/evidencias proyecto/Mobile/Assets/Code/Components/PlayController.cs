@@ -103,6 +103,7 @@ public class PlayController : MonoBehaviour
         }
 
         RunResults result = Persistence.Instance.Data.FinishRun(escape, _maxFires);
+        StartCoroutine(Persistence.Instance.FinishRun());
 
         _gameoverCanvas.gameObject.SetActive(true);
         _gameoverCanvas.SetTexts(result);

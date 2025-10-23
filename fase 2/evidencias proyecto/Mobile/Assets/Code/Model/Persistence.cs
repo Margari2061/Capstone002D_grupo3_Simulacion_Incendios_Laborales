@@ -89,7 +89,7 @@ public class Persistence
 
     public IEnumerator FinishRun()
     {
-        using (UnityWebRequest request = AideNetwork.PostJson($"{Host}/api/test", ""))
+        using (UnityWebRequest request = AideNetwork.PostJson($"{Host}/api/runEnd", Data))
         {
             request.SetRequestHeader("Authorization", _tokenKey);
             yield return request.SendWebRequest();
