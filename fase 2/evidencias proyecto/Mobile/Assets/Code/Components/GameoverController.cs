@@ -3,10 +3,14 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameoverController : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI _text;
+    [SerializeField] private Button _playAgainButton;
+    [SerializeField] private Button _gameoverButton;
+    [SerializeField] private Image _indicator;
 
     private readonly Dictionary<RunResults, string> _textOptions = new()
     {
@@ -16,6 +20,25 @@ public class GameoverController : MonoBehaviour
         { RunResults.EscapeTardio, "No te hagas el héroe. En una situación real podrías haber sido gravemente herido. Y nadie quiere eso." },
         { RunResults.Muerte, "No solo te has herido a tí mismo, sino que has puesto en peligro a tus compañeros de trabajo. Recuerda mantener la calma y seguir los protocolos establecidos." },
     };
+
+    private void Start()
+    {
+        _playAgainButton.interactable = false;
+        _gameoverButton.interactable = false;
+    }
+
+    private void Update()
+    {
+        if(Persistence.Instance.FinalTransferReady)
+        {
+            _playAgainButton.interactable = true;
+            _gameoverButton.interactable = true;
+            _indicator.enabled = false;
+            return;
+        }
+
+        _indicator.transform.Rotate(0f, 0f, Time.deltaTime);
+    }
 
     public void SetTexts(RunResults result)
     {

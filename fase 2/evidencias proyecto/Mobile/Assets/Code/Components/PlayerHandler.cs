@@ -101,7 +101,7 @@ public class PlayerHandler : MonoBehaviour
                 _animatorHandler.RunningLevel.Set(2);
                 _runningTime += Time.deltaTime;
 
-                if(_runningTime >= 0.6f)
+                if(_runningTime >= 1f)
                 {
                     _runningTime = 0f;
                     Persistence.Instance.Data.Desasosiego++;
