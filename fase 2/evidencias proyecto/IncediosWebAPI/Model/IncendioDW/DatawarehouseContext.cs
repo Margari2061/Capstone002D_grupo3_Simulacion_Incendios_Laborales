@@ -1,6 +1,9 @@
-﻿namespace IncediosWebAPI.Model.IncendioDW
+﻿
+namespace IncediosWebAPI.Model.IncendioDW
 {
     public class DatawarehouseContext
     {
+
+
     }
 }
