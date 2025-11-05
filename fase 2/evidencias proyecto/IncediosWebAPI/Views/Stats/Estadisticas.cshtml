@@ -153,7 +153,7 @@
                 const response = await fetch('/Stats/ObtenerDatosEstadisticos');
                 const data = await response.json();
 
-                mostrarLoading(false);
+                mostrarLoading(false); 
                 renderizarDashboard(data);
 
             } catch (error) {
@@ -394,24 +394,140 @@
                 }
             });
         }
+        // ===================================================================================
 
         // Función para cargar KPIs Avanzados (para la FASE 2)
+        // async function cargarKPIsAvanzados() {
+        //     try {
+        //         const response = await fetch('/Stats/api/kpis/avanzados');
+        //         const kpis = await response.json();
+
+        //         // Mostrar en alerta por ahora (en FASE 2 lo integraremos mejor)
+        //         alert(`KPIs Avanzados:\n\n` +
+        //               `Brecha de Género: ${kpis.vulnerabilidadGenero.brechaPorcentaje}%\n` +
+        //               `Impacto Estrés: ${kpis.impactoEstres.correlacionEstresLesiones}%\n` +
+        //               `Ventaja Monitores: ${kpis.eficienciaExperiencia.ventajaMonitores}%`);
+
+        //     } catch (error) {
+        //         console.error('Error cargando KPIs:', error);
+        //         alert('Error cargando KPIs avanzados');
+        //     }
+        // }
+
+        //======================================================================================
+
+                // Función para cargar KPIs Avanzados - VERSIÓN MEJORADA
         async function cargarKPIsAvanzados() {
             try {
-                const response = await fetch('/Stats/api/kpis/avanzados');
-                const kpis = await response.json();
+                console.log("🔄 Solicitando KPIs...");
 
-                // Mostrar en alerta por ahora (en FASE 2 lo integraremos mejor)
-                alert(`KPIs Avanzados:\n\n` +
-                      `Brecha de Género: ${kpis.vulnerabilidadGenero.brechaPorcentaje}%\n` +
-                      `Impacto Estrés: ${kpis.impactoEstres.correlacionEstresLesiones}%\n` +
-                      `Ventaja Monitores: ${kpis.eficienciaExperiencia.ventajaMonitores}%`);
+                // PRIMERO intentar con el endpoint simple
+                let response = await fetch('/Stats/api/kpis/test');
+
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+
+                const kpis = await response.json();
+                console.log("✅ KPIs recibidos:", kpis);
+
+                // Mostrar resultados en un modal más bonito
+                mostrarKPIsEnModal(kpis);
 
             } catch (error) {
-                console.error('Error cargando KPIs:', error);
-                alert('Error cargando KPIs avanzados');
+                console.error('❌ Error cargando KPIs:', error);
+
+                // Mostrar KPIs de emergencia
+                const kpisEmergencia = {
+                    vulnerabilidadGenero: { brechaPorcentaje: 15.0, mensaje: "Datos de emergencia" },
+                    impactoEstres: { correlacionEstresLesiones: 50.0, mensaje: "Datos de emergencia" },
+                    eficienciaExperiencia: { ventajaMonitores: 25.0, mensaje: "Datos de emergencia" },
+                    mensajeGlobal: "⚠️ Usando datos de emergencia"
+                };
+
+                mostrarKPIsEnModal(kpisEmergencia);
             }
         }
+
+        // Función para mostrar KPIs en un modal bonito
+        function mostrarKPIsEnModal(kpis) {
+            // Crear contenido del modal
+            const modalContent = `
+                <div class="modal fade" id="kpisModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title">🎯 KPIs Avanzados</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="card border-success mb-3">
+                                            <div class="card-header bg-success text-white">
+                                                <h6>👥 Vulnerabilidad por Género</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <h4 class="text-success">${kpis.vulnerabilidadGenero.brechaPorcentaje}%</h4>
+                                                <small>Brecha en protocolos</small>
+                                                <p class="mt-2 small">${kpis.vulnerabilidadGenero.mensaje || ''}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card border-warning mb-3">
+                                            <div class="card-header bg-warning text-dark">
+                                                <h6>😰 Impacto del Estrés</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <h4 class="text-warning">${kpis.impactoEstres.correlacionEstresLesiones}%</h4>
+                                                <small>Correlación con lesiones</small>
+                                                <p class="mt-2 small">${kpis.impactoEstres.mensaje || ''}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card border-info mb-3">
+                                            <div class="card-header bg-info text-white">
+                                                <h6>⚡ Eficiencia vs Experiencia</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <h4 class="text-info">${kpis.eficienciaExperiencia.ventajaMonitores}%</h4>
+                                                <small>Ventaja monitores</small>
+                                                <p class="mt-2 small">${kpis.eficienciaExperiencia.mensaje || ''}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                ${kpis.mensajeGlobal ? `<div class="alert alert-info mt-3">${kpis.mensajeGlobal}</div>` : ''}
+                                <div class="text-muted small">
+                                    <i>📅 Generado: ${new Date().toLocaleString()}</i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Agregar modal al DOM si no existe
+            if (!document.getElementById('kpisModal')) {
+                document.body.insertAdjacentHTML('beforeend', modalContent);
+            }
+
+            // Mostrar modal
+            const modal = new bootstrap.Modal(document.getElementById('kpisModal'));
+            modal.show();
+        }
+
+
+
+
+
+
+
+
+        //===========================================================================================
+
 
         // Actualizar automáticamente cada 2 minutos
         setInterval(cargarDatos, 120000);
