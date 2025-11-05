@@ -1,0 +1,163 @@
+﻿@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Dashboard de Estadísticas";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>📈 Dashboard de Estadísticas</h1>
+        <div>
+            <a href="@Url.Action("Index")" class="btn btn-secondary me-2">
+                ⚙️ Configuración
+            </a>
+            <button class="btn btn-primary" onclick="cargarDatos()">
+                🔄 Actualizar
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="text-center">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando estadísticas...</span>
+        </div>
+        <p class="mt-2">Cargando estadísticas...</p>
+    </div>
+
+    <!-- Contenedor de Estadísticas -->
+    <div id="estadisticasContainer" style="display: none;">
+        <!-- Se carga via AJAX -->
+    </div>
+
+    <!-- Mensajes -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarDatos();
+        });
+
+        async function cargarDatos() {
+            try {
+                document.getElementById('loadingSpinner').style.display = 'block';
+                document.getElementById('estadisticasContainer').style.display = 'none';
+
+                const response = await fetch('/Stats/ObtenerDatosEstadisticos');
+                const data = await response.json();
+
+                document.getElementById('loadingSpinner').style.display = 'none';
+                document.getElementById('estadisticasContainer').style.display = 'block';
+
+                renderizarEstadisticas(data);
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loadingSpinner').innerHTML =
+                    '<div class="alert alert-danger">Error cargando estadísticas</div>';
+            }
+        }
+
+        function renderizarEstadisticas(data) {
+            const container = document.getElementById('estadisticasContainer');
+
+            container.innerHTML = `
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card text-white bg-primary">
+                            <div class="card-body">
+                                <h3>${data.partidas.total}</h3>
+                                <p>Partidas Totales</p>
+                                <small>${data.periodo}</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-white bg-success">
+                            <div class="card-body">
+                                <h3>${data.partidas.tasaExito}%</h3>
+                                <p>Tasa de Éxito</p>
+                                <small>${data.partidas.exitosas} exitosas</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-white bg-warning">
+                            <div class="card-body">
+                                <h3>${data.partidas.conLesionados}</h3>
+                                <p>Con Lesionados</p>
+                                <small>Partidas con daño</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-white bg-info">
+                            <div class="card-body">
+                                <h3>${data.dataWarehouse.metricasRecientes}</h3>
+                                <p>Métricas ETL</p>
+                                <small>Total: ${data.dataWarehouse.totalMetricas}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>📊 Estadísticas de Partidas</h5>
+                            </div>
+                            <div class="card-body">
+                                <table class="table">
+                                    <tr><td>Tiempo Promedio:</td><td><strong>${data.partidas.promedioTiempoSegundos} segundos</strong></td></tr>
+                                    <tr><td>Partidas Exitosas:</td><td><strong>${data.partidas.exitosas}</strong></td></tr>
+                                    <tr><td>Con Lesionados:</td><td><strong>${data.partidas.conLesionados}</strong></td></tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>🏭 Data Warehouse</h5>
+                            </div>
+                            <div class="card-body">
+                                <table class="table">
+                                    <tr><td>Contención Promedio:</td><td><strong>${data.dataWarehouse.promedioContencion}%</strong></td></tr>
+                                    <tr><td>Métricas Recientes:</td><td><strong>${data.dataWarehouse.metricasRecientes}</strong></td></tr>
+                                    <tr><td>Total Métricas:</td><td><strong>${data.dataWarehouse.totalMetricas}</strong></td></tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body text-center text-muted">
+                                <small>📅 Actualizado: ${new Date(data.fechaActualizacion).toLocaleString()} | 🔍 Período: ${data.periodo}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        setInterval(cargarDatos, 120000);
+    </script>
+}
