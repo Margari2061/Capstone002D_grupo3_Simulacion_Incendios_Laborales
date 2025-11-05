@@ -419,7 +419,7 @@
                 // Función para cargar KPIs Avanzados - VERSIÓN MEJORADA
         async function cargarKPIsAvanzados() {
             try {
-                console.log("🔄 Solicitando KPIs...");
+                console.log(" Solicitando KPIs...");
 
                 // PRIMERO intentar con el endpoint simple
                 let response = await fetch('/Stats/api/kpis/test');
@@ -429,20 +429,20 @@
                 }
 
                 const kpis = await response.json();
-                console.log("✅ KPIs recibidos:", kpis);
+                console.log(" KPIs recibidos:", kpis);
 
                 // Mostrar resultados en un modal más bonito
                 mostrarKPIsEnModal(kpis);
 
             } catch (error) {
-                console.error('❌ Error cargando KPIs:', error);
+                console.error(' Error cargando KPIs:', error);
 
                 // Mostrar KPIs de emergencia
                 const kpisEmergencia = {
                     vulnerabilidadGenero: { brechaPorcentaje: 15.0, mensaje: "Datos de emergencia" },
                     impactoEstres: { correlacionEstresLesiones: 50.0, mensaje: "Datos de emergencia" },
                     eficienciaExperiencia: { ventajaMonitores: 25.0, mensaje: "Datos de emergencia" },
-                    mensajeGlobal: "⚠️ Usando datos de emergencia"
+                    mensajeGlobal: " Usando datos de emergencia"
                 };
 
                 mostrarKPIsEnModal(kpisEmergencia);
@@ -457,7 +457,7 @@
                     <div class="modal-dialog modal-lg">
                         <div class="modal-content">
                             <div class="modal-header bg-primary text-white">
-                                <h5 class="modal-title">🎯 KPIs Avanzados</h5>
+                                <h5 class="modal-title"> KPIs Avanzados</h5>
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body">
@@ -465,7 +465,7 @@
                                     <div class="col-md-4">
                                         <div class="card border-success mb-3">
                                             <div class="card-header bg-success text-white">
-                                                <h6>👥 Vulnerabilidad por Género</h6>
+                                                <h6> Vulnerabilidad por Género</h6>
                                             </div>
                                             <div class="card-body">
                                                 <h4 class="text-success">${kpis.vulnerabilidadGenero.brechaPorcentaje}%</h4>
@@ -477,7 +477,7 @@
                                     <div class="col-md-4">
                                         <div class="card border-warning mb-3">
                                             <div class="card-header bg-warning text-dark">
-                                                <h6>😰 Impacto del Estrés</h6>
+                                                <h6> Impacto del Estrés</h6>
                                             </div>
                                             <div class="card-body">
                                                 <h4 class="text-warning">${kpis.impactoEstres.correlacionEstresLesiones}%</h4>
@@ -489,7 +489,7 @@
                                     <div class="col-md-4">
                                         <div class="card border-info mb-3">
                                             <div class="card-header bg-info text-white">
-                                                <h6>⚡ Eficiencia vs Experiencia</h6>
+                                                <h6> Eficiencia vs Experiencia</h6>
                                             </div>
                                             <div class="card-body">
                                                 <h4 class="text-info">${kpis.eficienciaExperiencia.ventajaMonitores}%</h4>
@@ -501,7 +501,7 @@
                                 </div>
                                 ${kpis.mensajeGlobal ? `<div class="alert alert-info mt-3">${kpis.mensajeGlobal}</div>` : ''}
                                 <div class="text-muted small">
-                                    <i>📅 Generado: ${new Date().toLocaleString()}</i>
+                                    <i> Generado: ${new Date().toLocaleString()}</i>
                                 </div>
                             </div>
                         </div>
