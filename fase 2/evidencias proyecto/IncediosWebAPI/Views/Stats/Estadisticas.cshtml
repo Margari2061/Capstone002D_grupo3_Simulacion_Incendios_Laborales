@@ -34,7 +34,7 @@
 
         <!-- Primera Fila de Gráficos -->
         <div class="row mb-4">
-            <!-- Gráfico 1: Distribución de Resultados -->
+            <!-- Gráfico 1: Distribución de Resultados (Modificar ) -->
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -47,11 +47,11 @@
                 </div>
             </div>
 
-            <!-- Gráfico 2: Eficiencia por Nivel -->
+            <!-- Gráfico 2: RATIOEXTINCION GENERADO POR NIVEL (LISTO)-->
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        <h5> Eficiencia por Nivel</h5>
+                        <h5> RatioExtincion generada por nivel</h5>
                     </div>
                     <div class="card-body">
                         <canvas id="chartEficienciaNiveles" height="250"></canvas>
@@ -152,7 +152,6 @@
 
                 const response = await fetch('/Stats/ObtenerDatosEstadisticos');
                 const data = await response.json();
-                console.log(data);
 
                 mostrarLoading(false); 
                 renderizarDashboard(data);
@@ -310,10 +309,10 @@
             charts.eficiencia = new Chart(ctxEficiencia, {
                 type: 'bar',
                 data: {
-                    labels: ['Nivel 1', 'Nivel 2', 'Nivel 3'], // Puedes personalizar
+                    labels: ['Nivel 1', 'Nivel 2'], // Puedes personalizar
                     datasets: [{
                         label: 'Tasa de Éxito (%)',
-                        data: [75, 82, 68], // Datos de ejemplo - necesitaríamos datos reales
+                        data: data.partidas.ratioExtincion, // Datos de ejemplo - necesitaríamos datos reales
                         backgroundColor: '#2196F3',
                         borderColor: '#1976D2',
                         borderWidth: 1
@@ -525,13 +524,6 @@
                 modalElement.remove();
             });
         }
-
-
-
-
-
-
-
 
         //===========================================================================================
 

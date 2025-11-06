@@ -150,7 +150,7 @@ public class StatsController : Controller
     {
         try
         {
-            _logger.LogInformation("🔍 Calculando KPIs avanzados...");
+            _logger.LogInformation(" Calculando KPIs avanzados...");
 
             // Verificar si hay datos suficientes
             var totalPartidas = await _context.Partidas.CountAsync();
@@ -158,8 +158,8 @@ public class StatsController : Controller
 
             if (totalPartidas == 0 || totalUsuarios == 0)
             {
-                _logger.LogInformation("📊 No hay datos suficientes, generando KPIs de ejemplo");
-                return Ok(GenerarKPIsDeEjemplo());
+                _logger.LogInformation("No hay datos suficientes");
+                return Ok();
             }
 
             // Calcular KPIs con datos reales
@@ -167,7 +167,7 @@ public class StatsController : Controller
             var kpiEstres = await CalcularKPI_ImpactoEstres();
             var kpiEficiencia = await CalcularKPI_EficienciaExperiencia();
 
-            _logger.LogInformation("✅ KPIs calculados exitosamente con datos reales");
+            _logger.LogInformation("KPIs calculados exitosamente con datos reales");
 
             return Ok(new
             {
@@ -182,59 +182,11 @@ public class StatsController : Controller
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "❌ Error en KPIs, generando ejemplo");
+            _logger.LogError(ex, " Error en KPIs");
             // Si hay error, devolver datos de ejemplo
-            return Ok(GenerarKPIsDeEjemplo());
+            return Ok();
         }
     }
-
-    // Método para generar KPIs de ejemplo
-    private object GenerarKPIsDeEjemplo()
-    {
-        var random = new Random();
-
-        return new
-        {
-            VulnerabilidadGenero = new
-            {
-                BrechaPorcentaje = Math.Round((random.NextDouble() * 30) - 15, 2), // Entre -15% y +15%
-                TasaHombres = Math.Round(65 + random.NextDouble() * 20, 2), // 65-85%
-                TasaMujeres = Math.Round(65 + random.NextDouble() * 20, 2), // 65-85%
-                GeneroMasEfectivo = random.Next(2) == 0 ? "Mujeres" : "Hombres",
-                TotalMuestras = random.Next(50, 200),
-                Mensaje = "📊 Datos de ejemplo - Esperando datos reales"
-            },
-            ImpactoEstres = new
-            {
-                CorrelacionEstresLesiones = Math.Round(random.NextDouble() * 100, 2), // 0-100%
-                UmbralEstresCritico = Math.Round(50 + random.NextDouble() * 30, 2), // 50-80
-                TotalMuestras = random.Next(100, 300),
-                Interpretacion = random.Next(3) switch
-                {
-                    0 => "Alta correlación",
-                    1 => "Correlación moderada",
-                    _ => "Baja correlación"
-                },
-                Mensaje = "😰 Datos de ejemplo - Esperando datos reales"
-            },
-            EficienciaExperiencia = new
-            {
-                VentajaMonitores = Math.Round(random.NextDouble() * 60, 2), // 0-60%
-                EficienciaMonitores = Math.Round(1.5 + random.NextDouble() * 1.5, 2), // 1.5-3.0
-                EficienciaNoMonitores = Math.Round(1.0 + random.NextDouble() * 1.0, 2), // 1.0-2.0
-                TasaExitoMonitores = Math.Round(70 + random.NextDouble() * 20, 2), // 70-90%
-                TasaExitoNoMonitores = Math.Round(50 + random.NextDouble() * 30, 2), // 50-80%
-                PartidasAnalizadas = random.Next(80, 150),
-                Mensaje = "⚡ Datos de ejemplo - Esperando datos reales"
-            },
-            FechaCalculo = DateTime.Now,
-            Modo = "Ejemplo",
-            MensajeGlobal = "🎯 Estos son KPIs de ejemplo. Los datos reales aparecerán cuando se jueguen partidas."
-        };
-    }
-
-
-    //=================== BORRAR POR TESTEO =================================================================
 
     // ==================== NUEVO ENDPOINT SIMPLE PARA TESTING ====================
     [HttpGet("api/kpis/test")]
@@ -253,7 +205,7 @@ public class StatsController : Controller
                     TasaMujeres = 76.7,
                     GeneroMasEfectivo = "Mujeres",
                     TotalMuestras = 142,
-                    Mensaje = "📊 Datos de ejemplo"
+                    Mensaje = ""
                 },
                 ImpactoEstres = new
                 {
@@ -261,7 +213,7 @@ public class StatsController : Controller
                     UmbralEstresCritico = 62.0,
                     TotalMuestras = 189,
                     Interpretacion = "Alta correlación",
-                    Mensaje = "😰 Datos de ejemplo"
+                    Mensaje = ""
                 },
                 EficienciaExperiencia = new
                 {
@@ -271,11 +223,11 @@ public class StatsController : Controller
                     TasaExitoMonitores = 78.5,
                     TasaExitoNoMonitores = 55.2,
                     PartidasAnalizadas = 124,
-                    Mensaje = "⚡ Datos de ejemplo"
+                    Mensaje = ""
                 },
                 FechaCalculo = DateTime.Now,
                 Modo = "Ejemplo",
-                MensajeGlobal = "🎯 KPIs de demostración - Listos para datos reales"
+                MensajeGlobal = " KPIs de demostración - Listos para datos reales"
             };
 
             return Ok(kpis);
@@ -294,21 +246,8 @@ public class StatsController : Controller
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
     // ==============================================================================================================
-    // ==================== MÉTODOS PRIVADOS EXISTENTES ====================
+    // ==================== MÉTODOS PRIVADOS EXISTENTES REALES====================
 
     private async Task<object> ObtenerEstadisticasETL()
     {
@@ -328,6 +267,21 @@ public class StatsController : Controller
             .Where(p => p.Resultado == ResultadosPartida.CondicionesCumplidas)
             .ToList()
             .Count;
+
+        double ratioExtincion(IEnumerable<Partida> partidas)
+        {
+            int fuegos = partidas.Sum(p => p.FuegosApagados);
+            int extintores = partidas.Sum(p => p.ExtintoresUsados);
+
+            if (extintores == 0)
+                return 0;
+
+            return (double)fuegos / extintores * 10.0;
+        }
+
+        var ratioExtincionPorNivel = new double[2];
+        ratioExtincionPorNivel[0] = ratioExtincion(partidas.Where(p => p.IdNivel == 1));
+        ratioExtincionPorNivel[1] = ratioExtincion(partidas.Where(p => p.IdNivel == 2));
 
         var partidasConLesionados = partidas
             .Where(p => p.Heridas > 1)
@@ -350,6 +304,7 @@ public class StatsController : Controller
             {
                 Total = totalPartidas,
                 Exitosas = partidasExitosas,
+                RatioExtincion = ratioExtincionPorNivel,
                 ConLesionados = partidasConLesionados,
                 TasaExito = totalPartidas > 0 ? Math.Round(partidasExitosas / totalPartidas * 100.0, 2) : 0,
                 PromedioTiempoSegundos = Math.Round(promedioTiempo, 2)

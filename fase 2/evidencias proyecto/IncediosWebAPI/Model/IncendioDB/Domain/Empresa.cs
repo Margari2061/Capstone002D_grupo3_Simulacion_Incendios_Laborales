@@ -23,6 +23,6 @@ public class Empresa
 
     // Navigation property
     public List<Sede> Sedes { get; set; } = [];
-
+    public List<MetricasEvento> Metricas { get; set; } = [];
 
 }

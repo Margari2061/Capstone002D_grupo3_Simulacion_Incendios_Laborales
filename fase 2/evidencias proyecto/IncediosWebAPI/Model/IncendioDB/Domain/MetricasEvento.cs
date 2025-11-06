@@ -8,6 +8,10 @@ namespace IncediosWebAPI.Model.IncendioDB.Domain
         [Key]
         public int Id { get; set; }
 
+        public int RutEmpresa { get; set; }
+
+        [ForeignKey(nameof(RutEmpresa))]
+        public Empresa? Empresa { get; set; }
         [Required]
         public DateTimeOffset Fecha { get; set; } = DateTimeOffset.Now;
 
