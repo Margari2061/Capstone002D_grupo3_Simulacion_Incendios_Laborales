@@ -1,0 +1,541 @@
+﻿@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Dashboard de Estadísticas - Chart.js";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1> Dashboard Interactivo</h1>
+        <div>
+            <a href="@Url.Action("Index")" class="btn btn-secondary me-2">
+                 Configuración
+            </a>
+            <button class="btn btn-success" onclick="cargarKPIsAvanzados()">
+                 Ver KPIs Avanzados
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="text-center">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando estadísticas...</span>
+        </div>
+        <p class="mt-2">Cargando estadísticas y gráficos...</p>
+    </div>
+
+    <!-- Contenedor Principal -->
+    <div id="dashboardContainer" style="display: none;">
+
+        <!-- Tarjetas de Resumen -->
+        <div class="row mb-4" id="resumenCards">
+            <!-- Se cargan via JavaScript -->
+        </div>
+
+        <!-- Primera Fila de Gráficos -->
+        <div class="row mb-4">
+            <!-- Gráfico 1: Distribución de Resultados -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5> Distribución de Resultados</h5>
+                        <small class="text-muted" id="periodoInfo"></small>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="chartResultados" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráfico 2: Eficiencia por Nivel -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5> Eficiencia por Nivel</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="chartEficienciaNiveles" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Segunda Fila de Gráficos -->
+        <div class="row mb-4">
+            <!-- Gráfico 3: Tendencias Temporales -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Tendencias - Últimos 7 Días</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="chartTendencias" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráfico 4: Comportamiento Seguridad -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5> Comportamiento de Seguridad</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="chartSeguridad" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tercera Fila: Métricas Detalladas -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5> Métricas de Partidas</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="metricasPartidas">
+                            <!-- Se carga via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5> Data Warehouse</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="metricasDW">
+                            <!-- Se carga via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mensajes -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // Variables globales para los gráficos
+        let charts = {};
+
+        // Cargar datos al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarDatos();
+        });
+
+        async function cargarDatos() {
+            try {
+                mostrarLoading(true);
+
+                const response = await fetch('/Stats/ObtenerDatosEstadisticos');
+                const data = await response.json();
+
+                mostrarLoading(false); 
+                renderizarDashboard(data);
+
+            } catch (error) {
+                console.error('Error cargando datos:', error);
+                mostrarError('Error cargando estadísticas');
+            }
+        }
+
+        function mostrarLoading(mostrar) {
+            const loading = document.getElementById('loadingSpinner');
+            const dashboard = document.getElementById('dashboardContainer');
+
+            if (mostrar) {
+                loading.style.display = 'block';
+                dashboard.style.display = 'none';
+            } else {
+                loading.style.display = 'none';
+                dashboard.style.display = 'block';
+            }
+        }
+
+        function mostrarError(mensaje) {
+            const loading = document.getElementById('loadingSpinner');
+            loading.innerHTML = `<div class="alert alert-danger">${mensaje}</div>`;
+        }
+
+        function renderizarDashboard(data) {
+            // 1. Actualizar información del período
+            document.getElementById('periodoInfo').textContent = data.periodo;
+
+            // 2. Renderizar tarjetas de resumen
+            renderizarTarjetasResumen(data);
+
+            // 3. Renderizar métricas detalladas
+            renderizarMetricasDetalladas(data);
+
+            // 4. Crear gráficos
+            crearGraficos(data);
+        }
+
+        function renderizarTarjetasResumen(data) {
+            const container = document.getElementById('resumenCards');
+
+            container.innerHTML = `
+                <div class="col-md-3">
+                    <div class="card text-white bg-primary">
+                        <div class="card-body text-center">
+                            <h3>${data.partidas.total}</h3>
+                            <p>Partidas Totales</p>
+                            <small>${data.periodo}</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-success">
+                        <div class="card-body text-center">
+                            <h3>${data.partidas.tasaExito}%</h3>
+                            <p>Tasa de Éxito</p>
+                            <small>${data.partidas.exitosas} exitosas</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-warning">
+                        <div class="card-body text-center">
+                            <h3>${data.partidas.conLesionados}</h3>
+                            <p>Con Lesionados</p>
+                            <small>Partidas con daño</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-info">
+                        <div class="card-body text-center">
+                            <h3>${data.dataWarehouse.metricasRecientes}</h3>
+                            <p>Métricas ETL</p>
+                            <small>Total: ${data.dataWarehouse.totalMetricas}</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderizarMetricasDetalladas(data) {
+            // Métricas de Partidas
+            document.getElementById('metricasPartidas').innerHTML = `
+                <table class="table table-sm">
+                    <tr><td>Tiempo Promedio:</td><td><strong>${data.partidas.promedioTiempoSegundos} segundos</strong></td></tr>
+                    <tr><td>Partidas Exitosas:</td><td><strong>${data.partidas.exitosas}</strong></td></tr>
+                    <tr><td>Con Lesionados:</td><td><strong>${data.partidas.conLesionados}</strong></td></tr>
+                    <tr><td>Tasa de Éxito:</td><td><strong>${data.partidas.tasaExito}%</strong></td></tr>
+                </table>
+            `;
+
+            // Métricas del Data Warehouse
+            document.getElementById('metricasDW').innerHTML = `
+                <table class="table table-sm">
+                    <tr><td>Contención Promedio:</td><td><strong>${data.dataWarehouse.promedioContencion}%</strong></td></tr>
+                    <tr><td>Métricas Recientes:</td><td><strong>${data.dataWarehouse.metricasRecientes}</strong></td></tr>
+                    <tr><td>Total Métricas:</td><td><strong>${data.dataWarehouse.totalMetricas}</strong></td></tr>
+                </table>
+            `;
+        }
+
+        function crearGraficos(data) {
+            // Destruir gráficos existentes
+            Object.values(charts).forEach(chart => {
+                if (chart) chart.destroy();
+            });
+
+            // Colores para gráficos
+            const colores = ['#4CAF50', '#2196F3', '#FF9800', '#F44336', '#9C27B0', '#00BCD4'];
+
+            // Gráfico 1: Distribución de Resultados (Doughnut)
+            const ctxResultados = document.getElementById('chartResultados').getContext('2d');
+            charts.resultados = new Chart(ctxResultados, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Exitosas', 'Con Lesionados', 'En Progreso', 'Otros'],
+                    datasets: [{
+                        data: [
+                            data.partidas.exitosas,
+                            data.partidas.conLesionados,
+                            data.partidas.total - data.partidas.exitosas - data.partidas.conLesionados,
+                            0 // Puedes ajustar según tus datos
+                        ],
+                        backgroundColor: ['#4CAF50', '#FF9800', '#2196F3', '#9C27B0'],
+                        borderWidth: 2,
+                        borderColor: '#1e1e1e'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((context.raw / total) * 100);
+                                    return `${context.label}: ${context.raw} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Gráfico 2: Eficiencia por Nivel (Bar)
+            const ctxEficiencia = document.getElementById('chartEficienciaNiveles').getContext('2d');
+            charts.eficiencia = new Chart(ctxEficiencia, {
+                type: 'bar',
+                data: {
+                    labels: ['Nivel 1', 'Nivel 2', 'Nivel 3'], // Puedes personalizar
+                    datasets: [{
+                        label: 'Tasa de Éxito (%)',
+                        data: [75, 82, 68], // Datos de ejemplo - necesitaríamos datos reales
+                        backgroundColor: '#2196F3',
+                        borderColor: '#1976D2',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Gráfico 3: Tendencias Temporales (Line)
+            const ctxTendencias = document.getElementById('chartTendencias').getContext('2d');
+            charts.tendencias = new Chart(ctxTendencias, {
+                type: 'line',
+                data: {
+                    labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+                    datasets: [
+                        {
+                            label: 'Partidas Diarias',
+                            data: [12, 19, 8, 15, 22, 18, 11], // Datos de ejemplo
+                            borderColor: '#4CAF50',
+                            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Partidas Exitosas',
+                            data: [8, 12, 5, 10, 15, 12, 7], // Datos de ejemplo
+                            borderColor: '#2196F3',
+                            backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Gráfico 4: Comportamiento Seguridad (Pie)
+            const ctxSeguridad = document.getElementById('chartSeguridad').getContext('2d');
+            charts.seguridad = new Chart(ctxSeguridad, {
+                type: 'pie',
+                data: {
+                    labels: ['Con Uniforme', 'Con Alarma', 'Sin Lesiones', 'Protocolo Completo'],
+                    datasets: [{
+                        data: [65, 45, 70, 35], // Datos de ejemplo
+                        backgroundColor: ['#4CAF50', '#2196F3', '#FF9800', '#9C27B0']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+        // ===================================================================================
+
+        // Función para cargar KPIs Avanzados (para la FASE 2)
+        // async function cargarKPIsAvanzados() {
+        //     try {
+        //         const response = await fetch('/Stats/api/kpis/avanzados');
+        //         const kpis = await response.json();
+
+        //         // Mostrar en alerta por ahora (en FASE 2 lo integraremos mejor)
+        //         alert(`KPIs Avanzados:\n\n` +
+        //               `Brecha de Género: ${kpis.vulnerabilidadGenero.brechaPorcentaje}%\n` +
+        //               `Impacto Estrés: ${kpis.impactoEstres.correlacionEstresLesiones}%\n` +
+        //               `Ventaja Monitores: ${kpis.eficienciaExperiencia.ventajaMonitores}%`);
+
+        //     } catch (error) {
+        //         console.error('Error cargando KPIs:', error);
+        //         alert('Error cargando KPIs avanzados');
+        //     }
+        // }
+
+        //======================================================================================
+
+              async function cargarKPIsAvanzados() {
+            try {
+                console.log(" Solicitando KPIs...");
+
+                let response = await fetch('/Stats/api/kpis/test');
+
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+
+                const kpis = await response.json();
+                console.log(" KPIs recibidos:", kpis);
+
+                mostrarKPIsEnModal(kpis);
+
+            } catch (error) {
+                console.error(' Error cargando KPIs:', error);
+
+                const kpisEmergencia = {
+                    vulnerabilidadGenero: { brechaPorcentaje: 15.0, mensaje: "Datos de emergencia" },
+                    impactoEstres: { correlacionEstresLesiones: 50.0, mensaje: "Datos de emergencia" },
+                    eficienciaExperiencia: { ventajaMonitores: 25.0, mensaje: "Datos de emergencia" },
+                    mensajeGlobal: " Usando datos de emergencia"
+                };
+
+                mostrarKPIsEnModal(kpisEmergencia);
+            }
+        }
+
+        // ⬇️ AGREGAR ESTA FUNCIÓN NUEVA ⬇️
+        function mostrarKPIsEnModal(kpis) {
+            console.log(" Mostrando KPIs en modal:", kpis);
+
+            const modalContent = `
+                <div class="modal fade" id="kpisModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title"> KPIs Avanzados</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="card border-success mb-3">
+                                            <div class="card-header bg-success text-white">
+                                                <h6> Vulnerabilidad por Género</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <h4 class="text-success">${kpis.vulnerabilidadGenero?.brechaPorcentaje || 0}%</h4>
+                                                <small>Brecha en protocolos</small>
+                                                <p class="mt-2 small">${kpis.vulnerabilidadGenero?.mensaje || 'Datos de ejemplo'}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card border-warning mb-3">
+                                            <div class="card-header bg-warning text-dark">
+                                                <h6> Impacto del Estrés</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <h4 class="text-warning">${kpis.impactoEstres?.correlacionEstresLesiones || 0}%</h4>
+                                                <small>Correlación con lesiones</small>
+                                                <p class="mt-2 small">${kpis.impactoEstres?.mensaje || 'Datos de ejemplo'}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card border-info mb-3">
+                                            <div class="card-header bg-info text-white">
+                                                <h6>⚡ Eficiencia vs Experiencia</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <h4 class="text-info">${kpis.eficienciaExperiencia?.ventajaMonitores || 0}%</h4>
+                                                <small>Ventaja monitores</small>
+                                                <p class="mt-2 small">${kpis.eficienciaExperiencia?.mensaje || 'Datos de ejemplo'}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                ${kpis.mensajeGlobal ? `<div class="alert alert-info mt-3">${kpis.mensajeGlobal}</div>` : ''}
+                                <div class="text-muted small">
+                                    <i> Generado: ${new Date().toLocaleString()}</i>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const existingModal = document.getElementById('kpisModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+
+            document.body.insertAdjacentHTML('beforeend', modalContent);
+
+            const modalElement = document.getElementById('kpisModal');
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+
+            modalElement.addEventListener('hidden.bs.modal', function () {
+                modalElement.remove();
+            });
+        }
+
+
+
+
+
+
+
+
+        //===========================================================================================
+
+
+        // Actualizar automáticamente cada 2 minutos
+        setInterval(cargarDatos, 120000);
+    </script>
+}

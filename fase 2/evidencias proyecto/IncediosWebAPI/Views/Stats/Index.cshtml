@@ -1,0 +1,88 @@
+﻿@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Estadísticas - Sistema Incendios";
+}
+
+<div class="container-fluid">
+    <h1 class="mb-4">📊 Módulo de Estadísticas</h1>
+
+    <div class="row">
+        <!-- Tarjeta de Procesar ETL -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5>🔄 Procesar ETL</h5>
+                </div>
+                <div class="card-body">
+                    <p>Ejecuta el proceso ETL para generar métricas del Data Warehouse con las partidas recientes.</p>
+                    <form asp-action="ProcesarETL" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-primary">Ejecutar ETL</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjeta de Limpieza -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5>🧹 Limpieza de Datos</h5>
+                </div>
+                <div class="card-body">
+                    <p>Elimina partidas antiguas (más de 1 año) para optimizar el espacio.</p>
+                    <form asp-action="LimpiarDatosAntiguos" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-warning">Limpiar Datos Antiguos</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <!-- Navegación -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>🚀 Acciones Rápidas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2 d-md-flex">
+                        <a href="@Url.Action("Estadisticas")" class="btn btn-success me-2">
+                            📈 Ver Dashboard de Estadísticas
+                        </a>
+                        <a href="@Url.Action("Index", "Inicio")" class="btn btn-secondary">
+                            🏠 Volver al Inicio
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mensajes de Estado -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Info"] != null)
+    {
+        <div class="alert alert-info alert-dismissible fade show mt-3" role="alert">
+            @TempData["Info"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+</div>
