@@ -268,6 +268,15 @@ public class StatsController : Controller
             .ToList()
             .Count;
 
+        Dictionary<ResultadosPartida, int> resultados = new()
+        {
+            {ResultadosPartida.CondicionesCumplidas, partidas.Where(p =>p.Resultado == ResultadosPartida.CondicionesCumplidas).Count() },
+            {ResultadosPartida.EscapeSeguro, partidas.Where(p =>p.Resultado == ResultadosPartida.EscapeSeguro).Count() },
+            {ResultadosPartida.EscapeInmediato, partidas.Where(p =>p.Resultado == ResultadosPartida.EscapeInmediato).Count() },
+            {ResultadosPartida.EscapeTardio, partidas.Where(p =>p.Resultado == ResultadosPartida.EscapeTardio).Count() },
+            {ResultadosPartida.Muerte, partidas.Where(p =>p.Resultado == ResultadosPartida.Muerte).Count() },
+        };
+
         double ratioExtincion(IEnumerable<Partida> partidas)
         {
             int fuegos = partidas.Sum(p => p.FuegosApagados);
@@ -289,6 +298,7 @@ public class StatsController : Controller
             .Count;
 
         var promedioTiempo = partidas
+            .Where(p => p.Resultado != ResultadosPartida.EnProgreso)
             .Average(p => p.TiempoJugado.TotalMinutes);
 
         // Métricas del Data Warehouse
@@ -304,6 +314,8 @@ public class StatsController : Controller
             {
                 Total = totalPartidas,
                 Exitosas = partidasExitosas,
+                DistribucionResultadosLabels = resultados.Keys.Select(k => k.ToString()).ToArray(),
+                DistribucionResultadosValues = resultados.Values.ToArray(),
                 RatioExtincion = ratioExtincionPorNivel,
                 ConLesionados = partidasConLesionados,
                 TasaExito = totalPartidas > 0 ? Math.Round(partidasExitosas / totalPartidas * 100.0, 2) : 0,

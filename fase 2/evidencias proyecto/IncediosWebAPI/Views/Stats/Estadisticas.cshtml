@@ -272,15 +272,10 @@
             charts.resultados = new Chart(ctxResultados, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Exitosas', 'Con Lesionados', 'En Progreso', 'Otros'],
+                    labels: data.partidas.distribucionResultadosLabels,
                     datasets: [{
-                        data: [
-                            data.partidas.exitosas,
-                            data.partidas.conLesionados,
-                            data.partidas.total - data.partidas.exitosas - data.partidas.conLesionados,
-                            0 // Puedes ajustar según tus datos
-                        ],
-                        backgroundColor: ['#4CAF50', '#FF9800', '#2196F3', '#9C27B0'],
+                        data: data.partidas.distribucionResultadosValues,
+                        backgroundColor: [colores[0], colores[1], colores[2], colores[3], colores[4]],
                         borderWidth: 2,
                         borderColor: '#1e1e1e'
                     }]
