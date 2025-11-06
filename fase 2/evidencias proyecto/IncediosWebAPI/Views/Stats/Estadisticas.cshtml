@@ -416,12 +416,10 @@
 
         //======================================================================================
 
-                // Función para cargar KPIs Avanzados - VERSIÓN MEJORADA
-        async function cargarKPIsAvanzados() {
+              async function cargarKPIsAvanzados() {
             try {
                 console.log(" Solicitando KPIs...");
 
-                // PRIMERO intentar con el endpoint simple
                 let response = await fetch('/Stats/api/kpis/test');
 
                 if (!response.ok) {
@@ -431,13 +429,11 @@
                 const kpis = await response.json();
                 console.log(" KPIs recibidos:", kpis);
 
-                // Mostrar resultados en un modal más bonito
                 mostrarKPIsEnModal(kpis);
 
             } catch (error) {
                 console.error(' Error cargando KPIs:', error);
 
-                // Mostrar KPIs de emergencia
                 const kpisEmergencia = {
                     vulnerabilidadGenero: { brechaPorcentaje: 15.0, mensaje: "Datos de emergencia" },
                     impactoEstres: { correlacionEstresLesiones: 50.0, mensaje: "Datos de emergencia" },
@@ -449,9 +445,10 @@
             }
         }
 
-        // Función para mostrar KPIs en un modal bonito
+        // ⬇️ AGREGAR ESTA FUNCIÓN NUEVA ⬇️
         function mostrarKPIsEnModal(kpis) {
-            // Crear contenido del modal
+            console.log(" Mostrando KPIs en modal:", kpis);
+
             const modalContent = `
                 <div class="modal fade" id="kpisModal" tabindex="-1">
                     <div class="modal-dialog modal-lg">
@@ -468,9 +465,9 @@
                                                 <h6> Vulnerabilidad por Género</h6>
                                             </div>
                                             <div class="card-body">
-                                                <h4 class="text-success">${kpis.vulnerabilidadGenero.brechaPorcentaje}%</h4>
+                                                <h4 class="text-success">${kpis.vulnerabilidadGenero?.brechaPorcentaje || 0}%</h4>
                                                 <small>Brecha en protocolos</small>
-                                                <p class="mt-2 small">${kpis.vulnerabilidadGenero.mensaje || ''}</p>
+                                                <p class="mt-2 small">${kpis.vulnerabilidadGenero?.mensaje || 'Datos de ejemplo'}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -480,21 +477,21 @@
                                                 <h6> Impacto del Estrés</h6>
                                             </div>
                                             <div class="card-body">
-                                                <h4 class="text-warning">${kpis.impactoEstres.correlacionEstresLesiones}%</h4>
+                                                <h4 class="text-warning">${kpis.impactoEstres?.correlacionEstresLesiones || 0}%</h4>
                                                 <small>Correlación con lesiones</small>
-                                                <p class="mt-2 small">${kpis.impactoEstres.mensaje || ''}</p>
+                                                <p class="mt-2 small">${kpis.impactoEstres?.mensaje || 'Datos de ejemplo'}</p>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="card border-info mb-3">
                                             <div class="card-header bg-info text-white">
-                                                <h6> Eficiencia vs Experiencia</h6>
+                                                <h6>⚡ Eficiencia vs Experiencia</h6>
                                             </div>
                                             <div class="card-body">
-                                                <h4 class="text-info">${kpis.eficienciaExperiencia.ventajaMonitores}%</h4>
+                                                <h4 class="text-info">${kpis.eficienciaExperiencia?.ventajaMonitores || 0}%</h4>
                                                 <small>Ventaja monitores</small>
-                                                <p class="mt-2 small">${kpis.eficienciaExperiencia.mensaje || ''}</p>
+                                                <p class="mt-2 small">${kpis.eficienciaExperiencia?.mensaje || 'Datos de ejemplo'}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -504,19 +501,28 @@
                                     <i> Generado: ${new Date().toLocaleString()}</i>
                                 </div>
                             </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             `;
 
-            // Agregar modal al DOM si no existe
-            if (!document.getElementById('kpisModal')) {
-                document.body.insertAdjacentHTML('beforeend', modalContent);
+            const existingModal = document.getElementById('kpisModal');
+            if (existingModal) {
+                existingModal.remove();
             }
 
-            // Mostrar modal
-            const modal = new bootstrap.Modal(document.getElementById('kpisModal'));
+            document.body.insertAdjacentHTML('beforeend', modalContent);
+
+            const modalElement = document.getElementById('kpisModal');
+            const modal = new bootstrap.Modal(modalElement);
             modal.show();
+
+            modalElement.addEventListener('hidden.bs.modal', function () {
+                modalElement.remove();
+            });
         }
 
 
