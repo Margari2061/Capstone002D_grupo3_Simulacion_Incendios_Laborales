@@ -152,6 +152,7 @@
 
                 const response = await fetch('/Stats/ObtenerDatosEstadisticos');
                 const data = await response.json();
+                console.log(data);
 
                 mostrarLoading(false); 
                 renderizarDashboard(data);
@@ -241,7 +242,7 @@
             // Métricas de Partidas
             document.getElementById('metricasPartidas').innerHTML = `
                 <table class="table table-sm">
-                    <tr><td>Tiempo Promedio:</td><td><strong>${data.partidas.promedioTiempoSegundos} segundos</strong></td></tr>
+                    <tr><td>Tiempo Promedio:</td><td><strong>${data.partidas.promedioTiempoSegundos} minutos</strong></td></tr>
                     <tr><td>Partidas Exitosas:</td><td><strong>${data.partidas.exitosas}</strong></td></tr>
                     <tr><td>Con Lesionados:</td><td><strong>${data.partidas.conLesionados}</strong></td></tr>
                     <tr><td>Tasa de Éxito:</td><td><strong>${data.partidas.tasaExito}%</strong></td></tr>

@@ -314,18 +314,28 @@ public class StatsController : Controller
     {
         var fechaLimite = DateTime.UtcNow.AddDays(-30);
 
-        var totalPartidas = await _context.Partidas
-            .CountAsync(p => p.Fecha >= fechaLimite && p.Resultado != ResultadosPartida.EnProgreso);
+        List<Partida> partidas = await _context
+            .Partidas
+            .Where(p => p.Fecha >= fechaLimite)
+            .ToListAsync();
 
-        var partidasExitosas = await _context.Partidas
-            .CountAsync(p => p.Fecha >= fechaLimite && p.Resultado == ResultadosPartida.CondicionesCumplidas);
+        var totalPartidas = partidas
+            .Where(p => p.Resultado != ResultadosPartida.EnProgreso)
+            .ToList()
+            .Count;
 
-        var partidasConLesionados = await _context.Partidas
-            .CountAsync(p => p.Fecha >= fechaLimite && p.Heridas > 50);
+        var partidasExitosas = partidas
+            .Where(p => p.Resultado == ResultadosPartida.CondicionesCumplidas)
+            .ToList()
+            .Count;
 
-        var promedioTiempo = await _context.Partidas
-            .Where(p => p.Fecha >= fechaLimite && p.Resultado != ResultadosPartida.EnProgreso)
-            .AverageAsync(p => p.TiempoJugado.TotalSeconds);
+        var partidasConLesionados = partidas
+            .Where(p => p.Heridas > 1)
+            .ToList()
+            .Count;
+
+        var promedioTiempo = partidas
+            .Average(p => p.TiempoJugado.TotalMinutes);
 
         // Métricas del Data Warehouse
         var totalMetricas = await _context.MetricasEventos.CountAsync();
@@ -341,7 +351,7 @@ public class StatsController : Controller
                 Total = totalPartidas,
                 Exitosas = partidasExitosas,
                 ConLesionados = partidasConLesionados,
-                TasaExito = totalPartidas > 0 ? Math.Round((double)partidasExitosas / totalPartidas * 100, 2) : 0,
+                TasaExito = totalPartidas > 0 ? Math.Round(partidasExitosas / totalPartidas * 100.0, 2) : 0,
                 PromedioTiempoSegundos = Math.Round(promedioTiempo, 2)
             },
             DataWarehouse = new
