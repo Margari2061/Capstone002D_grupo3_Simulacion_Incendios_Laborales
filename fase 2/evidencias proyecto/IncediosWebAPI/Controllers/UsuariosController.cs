@@ -54,10 +54,10 @@ public class UsuariosController : Controller
 
         try
         {
+            UsuarioDetails model = new();
+
             var usuario = await _context.Usuarios
                 .Include(u => u.Departamento)
-                .ThenInclude(d => d.Sede)
-                .ThenInclude(s => s.Empresa)
                 .Include(u => u.Partidas)
                 .ThenInclude(p => p.Nivel)
                 .FirstOrDefaultAsync(m => m.Rut == id);
@@ -68,7 +68,38 @@ public class UsuariosController : Controller
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(usuario);
+            model.User = usuario;
+
+            TimeSpan played = TimeSpan.Zero;
+            Partida[] partidas = usuario
+                .Partidas
+                .Where(p => p.Resultado != ResultadosPartida.EnProgreso)
+                .ToArray();
+
+            foreach (Partida run in partidas)
+            {
+                played += run.TiempoJugado;
+            }
+
+            double totalDamage = partidas.Sum(p => p.Heridas);
+            int totalRuns = partidas.Length;
+            double totalExtinguished = partidas.Sum(p => p.FuegosApagados);
+            double totalExtinguisherUsed = partidas.Sum(p => p.ExtintoresUsados);
+
+            double dmgRun = Math.Round(totalDamage / totalRuns, 2);
+            if (double.IsInfinity(dmgRun) || double.IsNaN(dmgRun))
+                dmgRun = 0;
+
+            double avgExt = Math.Round(totalExtinguisherUsed / totalExtinguished, 2);
+            if(double.IsInfinity(avgExt) || double.IsNaN(avgExt))
+                avgExt = 0;
+
+            model.TimePlayed = played.ToString(@"hh\:mm\:ss");
+            model.PlayedRuns = totalRuns;
+            model.DamagePerRuns = dmgRun;
+            model.AverageExtintionRatio = avgExt; 
+
+            return View(model);
         }
         catch (Exception ex)
         {

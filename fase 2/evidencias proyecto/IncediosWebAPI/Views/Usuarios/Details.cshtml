@@ -1,53 +1,28 @@
-﻿@model IncediosWebAPI.Model.IncendioDB.Domain.Usuario
+﻿@model IncediosWebAPI.Model.DataTransfer.UsuarioDetails
 
 <div class="d-block ms-3">
 
     <h1>Detalles</h1>
 
     <div>
-        <h4>Usuario @Model.Rut-@Model.Dv</h4>
+        <h4>Usuario @Model.User.Rut-@Model.User.Dv</h4>
         <hr />
-        <dl class="row">
-            <dt class = "col-sm-2">
-                @Html.DisplayNameFor(model => model.Nombre)
-            </dt>
-            <dd class = "col-sm-10">
-                @Html.DisplayFor(model => model.Nombre)
-            </dd>
-            <dt class = "col-sm-2">
-                @Html.DisplayNameFor(model => model.Genero)
-            </dt>
-            <dd class = "col-sm-10">
-                @Html.DisplayFor(model => model.Genero)
-            </dd>
-            <dt class = "col-sm-2">
-                @Html.DisplayNameFor(model => model.FechaNacimiento)
-            </dt>
-            <dd class = "col-sm-10">
-                @Html.DisplayFor(model => model.FechaNacimiento)
-            </dd>
-            <dt class = "col-sm-2">
-                @Html.DisplayNameFor(model => model.Piso)
-            </dt>
-            <dd class = "col-sm-10">
-                @Html.DisplayFor(model => model.Piso)
-            </dd>
-            <dt class = "col-sm-2">
-                @Html.DisplayNameFor(model => model.EsMonitor)
-            </dt>
-            <dd class = "col-sm-10">
-                @Html.DisplayFor(model => model.EsMonitor)
-            </dd>
-            <dt class = "col-sm-2">
-                @Html.DisplayNameFor(model => model.Departamento)
-            </dt>
-            <dd class = "col-sm-10">
-                @Html.DisplayFor(model => model.Departamento.Nombre)
-            </dd>
-            <dt class="col-sm-2">
-                Roles
-            </dt>
-            <dd class="col-sm-10">
+        <div class="d-flex">
+            <div class="w-50 gd-7x2">
+                <p>@Html.DisplayNameFor(model => model.User.Nombre)</p>
+                <p>@Html.DisplayFor(model => model.User.Nombre)</p>
+                <p>@Html.DisplayNameFor(model => model.User.Genero)</p>
+                <p>@Html.DisplayFor(model => model.User.Genero)</p>
+                <p>@Html.DisplayNameFor(model => model.User.FechaNacimiento)</p>
+                <p>@Html.DisplayFor(model => model.User.FechaNacimiento)</p>
+                <p>@Html.DisplayNameFor(model => model.User.Piso)</p>
+                <p>@Html.DisplayFor(model => model.User.Piso)</p>
+                <p>@Html.DisplayNameFor(model => model.User.EsMonitor)</p>
+                <p>@Html.DisplayFor(model => model.User.EsMonitor)</p>
+                <p>@Html.DisplayNameFor(model => model.User.Departamento)</p>
+                <p>@Html.DisplayFor(model => model.User.Departamento.Nombre)</p>
+                <p>Roles</p>
+                <p>
                 @foreach(IncediosWebAPI.Model.AppRoles roles in Enum.GetValues(typeof(IncediosWebAPI.Model.AppRoles)))
                 {
                     if(roles == IncediosWebAPI.Model.AppRoles.None)
@@ -55,17 +30,37 @@
                         continue;
                     }
 
-                    if(Model.Roles.HasFlag(roles))
+                    if(Model.User.Roles.HasFlag(roles))
                     {
                         string span = $"{roles} | ";
                         @span
                     }
                 }
-            </dd>
-        </dl>
+                </p>
+            </div>
+            <div class="w-50 gd-2x2">
+                <div class="stat-card">
+                    <h4>@Model.PlayedRuns</h4>
+                    <p>Partidas Jugadas</p>
+                </div>
+                <div class="stat-card">
+                    <h4>@Model.TimePlayed</h4>
+                    <p>Tiempo Jugado</p>
+                </div>
+                <div class="stat-card">
+                    <h4>@Model.AverageExtintionRatio</h4>
+                    <p>Ratio de Extinción Promedio</p>
+                </div>
+                <div class="stat-card">
+                    <h4>@Model.DamagePerRuns</h4>
+                    <p>Heridas Promedio por Partida</p>
+                </div>
+            </div>
+        </div>
+        
     </div>
     <div>
-        <a asp-action="Edit" asp-route-id="@Model?.Rut">Editar</a> |
+        <a asp-action="Edit" asp-route-id="@Model?.User.Rut">Editar</a> |
         <a asp-action="Index">Volver</a>
     </div>
 </div>

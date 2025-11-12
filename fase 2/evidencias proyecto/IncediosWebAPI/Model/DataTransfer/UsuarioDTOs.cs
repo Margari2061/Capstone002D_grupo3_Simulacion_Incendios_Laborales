@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using IncediosWebAPI.Model.IncendioDB.Domain;
+using System.ComponentModel.DataAnnotations;
 
 namespace IncediosWebAPI.Model.DataTransfer
 {
@@ -50,5 +51,14 @@ namespace IncediosWebAPI.Model.DataTransfer
         public Generos Genero { get; set; }
         public bool EsMonitor { get; set; }
         public int IdDepartamento { get; set; }
+    }
+
+    public class UsuarioDetails
+    {
+        public Usuario User { get; set; } = new();
+        public int PlayedRuns { get; set; }
+        public string TimePlayed { get; set; } = "";
+        public double AverageExtintionRatio { get; set; }
+        public double DamagePerRuns { get; set; }
     }
 }
