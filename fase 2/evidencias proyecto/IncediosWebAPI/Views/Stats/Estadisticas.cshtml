@@ -8,10 +8,10 @@
         <h1> Dashboard Interactivo</h1>
         <div>
             <a href="@Url.Action("Index")" class="btn btn-secondary me-2">
-                 Configuración
+                Configuración
             </a>
             <button class="btn btn-success" onclick="cargarKPIsAvanzados()">
-                 Ver KPIs Avanzados
+                Ver KPIs Avanzados
             </button>
         </div>
     </div>
@@ -47,11 +47,11 @@
                 </div>
             </div>
 
-            <!-- Gráfico 2: Eficiencia por Nivel -->
+            <!-- Gráfico 2: RatioExtincion por Nivel -->
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        <h5> Eficiencia por Nivel</h5>
+                        <h5> Ratio de Extinción por Nivel</h5>
                     </div>
                     <div class="card-body">
                         <canvas id="chartEficienciaNiveles" height="250"></canvas>
@@ -62,11 +62,11 @@
 
         <!-- Segunda Fila de Gráficos -->
         <div class="row mb-4">
-            <!-- Gráfico 3: Tendencias Temporales -->
+            <!-- Gráfico 3: Tiempo Jugado por Día -->
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header">
-                        <h5>Tendencias - Últimos 7 Días</h5>
+                        <h5>Tiempo Jugado - Últimos 7 Días</h5>
                     </div>
                     <div class="card-body">
                         <canvas id="chartTendencias" height="200"></canvas>
@@ -152,9 +152,8 @@
 
                 const response = await fetch('/Stats/ObtenerDatosEstadisticos');
                 const data = await response.json();
-                console.log(data);
 
-                mostrarLoading(false); 
+                mostrarLoading(false);
                 renderizarDashboard(data);
 
             } catch (error) {
@@ -273,15 +272,10 @@
             charts.resultados = new Chart(ctxResultados, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Exitosas', 'Con Lesionados', 'En Progreso', 'Otros'],
+                    labels: data.partidas.distribucionResultadosLabels || ['Exitosas', 'Con Lesionados', 'En Progreso', 'Otros'],
                     datasets: [{
-                        data: [
-                            data.partidas.exitosas,
-                            data.partidas.conLesionados,
-                            data.partidas.total - data.partidas.exitosas - data.partidas.conLesionados,
-                            0 // Puedes ajustar según tus datos
-                        ],
-                        backgroundColor: ['#4CAF50', '#FF9800', '#2196F3', '#9C27B0'],
+                        data: data.partidas.distribucionResultadosValues || [data.partidas.exitosas, data.partidas.conLesionados, 0, 0],
+                        backgroundColor: [colores[0], colores[1], colores[2], colores[3]],
                         borderWidth: 2,
                         borderColor: '#1e1e1e'
                     }]
@@ -305,24 +299,25 @@
                 }
             });
 
-            // Gráfico 2: Eficiencia por Nivel (Bar)
+            // Gráfico 2: Ratio de Extinción por Nivel (Barras Horizontales)
             const ctxEficiencia = document.getElementById('chartEficienciaNiveles').getContext('2d');
             charts.eficiencia = new Chart(ctxEficiencia, {
                 type: 'bar',
                 data: {
-                    labels: ['Nivel 1', 'Nivel 2', 'Nivel 3'], // Puedes personalizar
+                    labels: data.partidas.nombresNiveles || ['Nivel 1', 'Nivel 2'],
                     datasets: [{
-                        label: 'Tasa de Éxito (%)',
-                        data: [75, 82, 68], // Datos de ejemplo - necesitaríamos datos reales
+                        label: 'Ratio de Extinción (%)',
+                        data: data.partidas.ratioExtincion || [75, 82],
                         backgroundColor: '#2196F3',
                         borderColor: '#1976D2',
                         borderWidth: 1
                     }]
                 },
                 options: {
+                    indexAxis: 'y', // Barras horizontales
                     responsive: true,
                     scales: {
-                        y: {
+                        x: {
                             beginAtZero: true,
                             max: 100,
                             ticks: {
@@ -330,33 +325,39 @@
                                     return value + '%';
                                 }
                             }
+                        },
+                        y: {
+                            beginAtZero: true
                         }
                     }
                 }
             });
 
-            // Gráfico 3: Tendencias Temporales (Line)
+            // Gráfico 3: Tiempo Jugado por Día (Line)
             const ctxTendencias = document.getElementById('chartTendencias').getContext('2d');
             charts.tendencias = new Chart(ctxTendencias, {
                 type: 'line',
                 data: {
-                    labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+                    labels: data.partidas.tiempoJugadoLabels || ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
                     datasets: [
                         {
-                            label: 'Partidas Diarias',
-                            data: [12, 19, 8, 15, 22, 18, 11], // Datos de ejemplo
+                            label: 'Tiempo Total Jugado (min)',
+                            data: data.partidas.tiempoJugadoPorDia || [45, 62, 38, 55, 78, 65, 42],
                             borderColor: '#4CAF50',
                             backgroundColor: 'rgba(76, 175, 80, 0.1)',
                             tension: 0.4,
-                            fill: true
+                            fill: true,
+                            borderWidth: 3
                         },
                         {
-                            label: 'Partidas Exitosas',
-                            data: [8, 12, 5, 10, 15, 12, 7], // Datos de ejemplo
+                            label: 'Promedio por Partida (min)',
+                            data: data.partidas.promedioTiempoPorDia || [15, 18, 12, 16, 19, 17, 14],
                             borderColor: '#2196F3',
                             backgroundColor: 'rgba(33, 150, 243, 0.1)',
                             tension: 0.4,
-                            fill: true
+                            fill: true,
+                            borderWidth: 2,
+                            borderDash: [5, 5]
                         }
                     ]
                 },
@@ -368,7 +369,31 @@
                     },
                     scales: {
                         y: {
-                            beginAtZero: true
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Minutos'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value + ' min';
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Días de la Semana'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.raw} minutos`;
+                                }
+                            }
                         }
                     }
                 }
@@ -395,31 +420,11 @@
                 }
             });
         }
-        // ===================================================================================
 
-        // Función para cargar KPIs Avanzados (para la FASE 2)
-        // async function cargarKPIsAvanzados() {
-        //     try {
-        //         const response = await fetch('/Stats/api/kpis/avanzados');
-        //         const kpis = await response.json();
-
-        //         // Mostrar en alerta por ahora (en FASE 2 lo integraremos mejor)
-        //         alert(`KPIs Avanzados:\n\n` +
-        //               `Brecha de Género: ${kpis.vulnerabilidadGenero.brechaPorcentaje}%\n` +
-        //               `Impacto Estrés: ${kpis.impactoEstres.correlacionEstresLesiones}%\n` +
-        //               `Ventaja Monitores: ${kpis.eficienciaExperiencia.ventajaMonitores}%`);
-
-        //     } catch (error) {
-        //         console.error('Error cargando KPIs:', error);
-        //         alert('Error cargando KPIs avanzados');
-        //     }
-        // }
-
-        //======================================================================================
-
-              async function cargarKPIsAvanzados() {
+        // Función para cargar KPIs Avanzados
+        async function cargarKPIsAvanzados() {
             try {
-                console.log(" Solicitando KPIs...");
+                console.log("Solicitando KPIs...");
 
                 let response = await fetch('/Stats/api/kpis/test');
 
@@ -428,34 +433,33 @@
                 }
 
                 const kpis = await response.json();
-                console.log(" KPIs recibidos:", kpis);
+                console.log("KPIs recibidos:", kpis);
 
                 mostrarKPIsEnModal(kpis);
 
             } catch (error) {
-                console.error(' Error cargando KPIs:', error);
+                console.error('Error cargando KPIs:', error);
 
                 const kpisEmergencia = {
                     vulnerabilidadGenero: { brechaPorcentaje: 15.0, mensaje: "Datos de emergencia" },
                     impactoEstres: { correlacionEstresLesiones: 50.0, mensaje: "Datos de emergencia" },
                     eficienciaExperiencia: { ventajaMonitores: 25.0, mensaje: "Datos de emergencia" },
-                    mensajeGlobal: " Usando datos de emergencia"
+                    mensajeGlobal: "Usando datos de emergencia"
                 };
 
                 mostrarKPIsEnModal(kpisEmergencia);
             }
         }
 
-        // ⬇️ AGREGAR ESTA FUNCIÓN NUEVA ⬇️
         function mostrarKPIsEnModal(kpis) {
-            console.log(" Mostrando KPIs en modal:", kpis);
+            console.log("Mostrando KPIs en modal:", kpis);
 
             const modalContent = `
                 <div class="modal fade" id="kpisModal" tabindex="-1">
                     <div class="modal-dialog modal-lg">
                         <div class="modal-content">
                             <div class="modal-header bg-primary text-white">
-                                <h5 class="modal-title"> KPIs Avanzados</h5>
+                                <h5 class="modal-title">KPIs Avanzados</h5>
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body">
@@ -463,7 +467,7 @@
                                     <div class="col-md-4">
                                         <div class="card border-success mb-3">
                                             <div class="card-header bg-success text-white">
-                                                <h6> Vulnerabilidad por Género</h6>
+                                                <h6>Vulnerabilidad por Género</h6>
                                             </div>
                                             <div class="card-body">
                                                 <h4 class="text-success">${kpis.vulnerabilidadGenero?.brechaPorcentaje || 0}%</h4>
@@ -475,7 +479,7 @@
                                     <div class="col-md-4">
                                         <div class="card border-warning mb-3">
                                             <div class="card-header bg-warning text-dark">
-                                                <h6> Impacto del Estrés</h6>
+                                                <h6>Impacto del Estrés</h6>
                                             </div>
                                             <div class="card-body">
                                                 <h4 class="text-warning">${kpis.impactoEstres?.correlacionEstresLesiones || 0}%</h4>
@@ -499,7 +503,7 @@
                                 </div>
                                 ${kpis.mensajeGlobal ? `<div class="alert alert-info mt-3">${kpis.mensajeGlobal}</div>` : ''}
                                 <div class="text-muted small">
-                                    <i> Generado: ${new Date().toLocaleString()}</i>
+                                    <i>Generado: ${new Date().toLocaleString()}</i>
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -525,16 +529,6 @@
                 modalElement.remove();
             });
         }
-
-
-
-
-
-
-
-
-        //===========================================================================================
-
 
         // Actualizar automáticamente cada 2 minutos
         setInterval(cargarDatos, 120000);
