@@ -1,4 +1,6 @@
-﻿using IncediosWebAPI.Model;
+﻿using IncediosWebAPI.Extensions;
+using IncediosWebAPI.Model;
+using IncediosWebAPI.Model.DataTransfer;
 using IncediosWebAPI.Model.IncendioDB;
 using IncediosWebAPI.Model.IncendioDB.Domain;
 using IncediosWebAPI.Security;
@@ -255,12 +257,10 @@ public class StatsController : Controller
 
         List<Partida> partidas = await _context
             .Partidas
-            .Where(p => p.Fecha >= fechaLimite)
+            .Where(p => p.Fecha >= fechaLimite && p.Resultado != ResultadosPartida.EnProgreso)
             .ToListAsync();
 
         var totalPartidas = partidas
-            .Where(p => p.Resultado != ResultadosPartida.EnProgreso)
-            .ToList()
             .Count;
 
         var partidasExitosas = partidas
@@ -268,6 +268,7 @@ public class StatsController : Controller
             .ToList()
             .Count;
 
+        #region Grafico 1
         Dictionary<ResultadosPartida, int> resultados = new()
         {
             {ResultadosPartida.CondicionesCumplidas, partidas.Where(p =>p.Resultado == ResultadosPartida.CondicionesCumplidas).Count() },
@@ -276,6 +277,7 @@ public class StatsController : Controller
             {ResultadosPartida.EscapeTardio, partidas.Where(p =>p.Resultado == ResultadosPartida.EscapeTardio).Count() },
             {ResultadosPartida.Muerte, partidas.Where(p =>p.Resultado == ResultadosPartida.Muerte).Count() },
         };
+        #endregion
 
         double ratioExtincion(IEnumerable<Partida> partidas)
         {
@@ -301,6 +303,87 @@ public class StatsController : Controller
             .Where(p => p.Resultado != ResultadosPartida.EnProgreso)
             .Average(p => p.TiempoJugado.TotalMinutes);
 
+        #region Grafico 2
+        Vector[] dataGraf2 = partidas
+            .Select(p => new Vector(p.Desasosiego, p.Heridas))
+            .ToArray();
+        #endregion
+
+        #region Grafico 3
+        List<string> fechas = [];
+        List<double> tiempoJugadoPorDia = [];
+        List<double> tiempoPromedioPorDia = [];
+        DateTime startDate = DateTime.UtcNow;
+        for(int i = 29; i >= 0; i--)
+        {
+            DateTime curr = startDate.AddDays(-i);
+            fechas.Add($"{curr.Month}-{curr.Day}");
+
+            Partida[] dayRuns = partidas
+                .Where(p => p.Fecha.Date == curr.Date)
+                .ToArray();
+
+            TimeSpan timePlayedDay = TimeSpan.Zero;
+            foreach (Partida r in dayRuns)
+                timePlayedDay += r.TiempoJugado;
+
+            tiempoJugadoPorDia.Add(Math.Round(timePlayedDay.TotalMinutes,2));
+
+            if(dayRuns.Length == 0)
+            {
+                tiempoPromedioPorDia.Add(0.0);
+                continue;
+            }
+
+            double avgDia = timePlayedDay.TotalMinutes / dayRuns.Length;
+            tiempoPromedioPorDia.Add(Math.Round(avgDia,2));
+        }
+        #endregion
+
+        #region Grafico 4
+        int usoAlarma = 0;
+        int usoUniforme = 0;
+        int sinLesiones = 0;
+        int protocoloCompleto = 0;
+
+        foreach(Partida r in partidas)
+        {
+            bool[] cond = [false, false, false];
+
+            if (r.IdNivel == 2)
+            {
+                usoAlarma++;
+                cond[0] = true;
+            }
+            else if (r.UsoAlarma)
+            {
+                usoAlarma++;
+                cond[0] = true;
+            }
+
+            if (r.UsoUniforme)
+            {
+                usoUniforme++;
+                cond[1] = true;
+            }
+
+            if(r.Heridas == 0)
+            {
+                sinLesiones++;
+                cond[2] = true;
+            }
+
+            if (cond[0] && cond[1] && cond[2])
+                protocoloCompleto++;
+        }
+
+        double avgAlarma = (double)usoAlarma / totalPartidas * 100.0;
+        double avgUniforme = (double)usoUniforme / totalPartidas * 100.0;
+        double avgLesiones = (double)sinLesiones / totalPartidas * 100.0;
+        double avgProtocolo = (double)protocoloCompleto / totalPartidas * 100.0;
+        #endregion
+
+
         // Métricas del Data Warehouse
         var totalMetricas = await _context.MetricasEventos.CountAsync();
         var metricasRecientes = await _context.MetricasEventos
@@ -314,12 +397,29 @@ public class StatsController : Controller
             {
                 Total = totalPartidas,
                 Exitosas = partidasExitosas,
-                DistribucionResultadosLabels = resultados.Keys.Select(k => k.ToString()).ToArray(),
-                DistribucionResultadosValues = resultados.Values.ToArray(),
                 RatioExtincion = ratioExtincionPorNivel,
                 ConLesionados = partidasConLesionados,
                 TasaExito = totalPartidas > 0 ? Math.Round(partidasExitosas / totalPartidas * 100.0, 2) : 0,
                 PromedioTiempoSegundos = Math.Round(promedioTiempo, 2)
+            },
+            Graf1 = new
+            {
+                Labels = resultados.Keys.Select(k => k.ToNormal()).ToArray(),
+                Values = resultados.Values.ToArray(),
+            },
+            Graf2 = new
+            {
+                Data = dataGraf2
+            },
+            Graf3 = new
+            {
+                Fechas = fechas,
+                TiempoJugado = tiempoJugadoPorDia,
+                PromedioJugado = tiempoPromedioPorDia
+            },
+            Graf4 = new
+            {
+                Data = new double[] { avgAlarma, avgUniforme, avgLesiones, avgProtocolo }
             },
             DataWarehouse = new
             {

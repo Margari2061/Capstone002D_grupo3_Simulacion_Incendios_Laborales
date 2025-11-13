@@ -10,9 +10,9 @@
             <a href="@Url.Action("Index")" class="btn btn-secondary me-2">
                 Configuración
             </a>
-            <button class="btn btn-success" onclick="cargarKPIsAvanzados()">
+            @* <button class="btn btn-success" onclick="cargarKPIsAvanzados()">
                 Ver KPIs Avanzados
-            </button>
+            </button> *@
         </div>
     </div>
 
@@ -47,11 +47,11 @@
                 </div>
             </div>
 
-            <!-- Gráfico 2: RatioExtincion por Nivel -->
+            <!-- Gráfico 2: Desasosiego v/s Heridas -->
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        <h5> Ratio de Extinción por Nivel</h5>
+                        <h5>Desasosiego (x) v/s Heridas Recibidas (y)</h5>
                     </div>
                     <div class="card-body">
                         <canvas id="chartEficienciaNiveles" height="250"></canvas>
@@ -66,7 +66,7 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header">
-                        <h5>Tiempo Jugado - Últimos 7 Días</h5>
+                        <h5>Tiempo Jugado por Día</h5>
                     </div>
                     <div class="card-body">
                         <canvas id="chartTendencias" height="200"></canvas>
@@ -92,7 +92,7 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        <h5> Métricas de Partidas</h5>
+                        <h5>Métricas de Partidas</h5>
                     </div>
                     <div class="card-body">
                         <div id="metricasPartidas">
@@ -101,7 +101,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
+            @* <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
                         <h5> Data Warehouse</h5>
@@ -112,7 +112,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> *@
         </div>
     </div>
 
@@ -142,7 +142,7 @@
         let charts = {};
 
         // Cargar datos al iniciar
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             cargarDatos();
         });
 
@@ -198,64 +198,64 @@
             const container = document.getElementById('resumenCards');
 
             container.innerHTML = `
-                <div class="col-md-3">
-                    <div class="card text-white bg-primary">
-                        <div class="card-body text-center">
-                            <h3>${data.partidas.total}</h3>
-                            <p>Partidas Totales</p>
-                            <small>${data.periodo}</small>
+                        <div class="col-md-3">
+                            <div class="card text-white bg-primary">
+                                <div class="card-body text-center">
+                                    <h3>${data.partidas.total}</h3>
+                                    <p>Partidas Totales</p>
+                                    <small>${data.periodo}</small>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card text-white bg-success">
-                        <div class="card-body text-center">
-                            <h3>${data.partidas.tasaExito}%</h3>
-                            <p>Tasa de Éxito</p>
-                            <small>${data.partidas.exitosas} exitosas</small>
+                        <div class="col-md-3">
+                            <!--<div class="card text-white bg-success">
+                                <div class="card-body text-center">
+                                    <h3>${data.partidas.tasaExito}%</h3>
+                                    <p>Tasa de Éxito</p>
+                                    <small>${data.partidas.exitosas} exitosas</small>
+                                </div>
+                            </div>-->
                         </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card text-white bg-warning">
-                        <div class="card-body text-center">
-                            <h3>${data.partidas.conLesionados}</h3>
-                            <p>Con Lesionados</p>
-                            <small>Partidas con daño</small>
+                        <div class="col-md-3">
+                            <div class="card text-white bg-warning">
+                                <div class="card-body text-center">
+                                    <h3>${data.partidas.conLesionados}</h3>
+                                    <p>Con Lesionados</p>
+                                    <small>Partidas con daño</small>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card text-white bg-info">
-                        <div class="card-body text-center">
-                            <h3>${data.dataWarehouse.metricasRecientes}</h3>
-                            <p>Métricas ETL</p>
-                            <small>Total: ${data.dataWarehouse.totalMetricas}</small>
+                        <div class="col-md-3">
+                            <!--<div class="card text-white bg-info">
+                                <div class="card-body text-center">
+                                    <h3>${data.dataWarehouse.metricasRecientes}</h3>
+                                    <p>Métricas ETL</p>
+                                    <small>Total: ${data.dataWarehouse.totalMetricas}</small>
+                                </div>
+                            </div>-->
                         </div>
-                    </div>
-                </div>
-            `;
+                    `;
         }
 
         function renderizarMetricasDetalladas(data) {
             // Métricas de Partidas
             document.getElementById('metricasPartidas').innerHTML = `
-                <table class="table table-sm">
-                    <tr><td>Tiempo Promedio:</td><td><strong>${data.partidas.promedioTiempoSegundos} minutos</strong></td></tr>
-                    <tr><td>Partidas Exitosas:</td><td><strong>${data.partidas.exitosas}</strong></td></tr>
-                    <tr><td>Con Lesionados:</td><td><strong>${data.partidas.conLesionados}</strong></td></tr>
-                    <tr><td>Tasa de Éxito:</td><td><strong>${data.partidas.tasaExito}%</strong></td></tr>
-                </table>
-            `;
+                        <table class="table table-sm">
+                            <tr><td>Tiempo Promedio:</td><td><strong>${data.partidas.promedioTiempoSegundos} minutos</strong></td></tr>
+                            <tr><td>Partidas Exitosas:</td><td><strong>${data.partidas.exitosas}</strong></td></tr>
+                            <tr><td>Con Lesionados:</td><td><strong>${data.partidas.conLesionados}</strong></td></tr>
+                            <tr><td>Tasa de Éxito:</td><td><strong>${data.partidas.tasaExito}%</strong></td></tr>
+                        </table>
+                    `;
 
             // Métricas del Data Warehouse
-            document.getElementById('metricasDW').innerHTML = `
-                <table class="table table-sm">
-                    <tr><td>Contención Promedio:</td><td><strong>${data.dataWarehouse.promedioContencion}%</strong></td></tr>
-                    <tr><td>Métricas Recientes:</td><td><strong>${data.dataWarehouse.metricasRecientes}</strong></td></tr>
-                    <tr><td>Total Métricas:</td><td><strong>${data.dataWarehouse.totalMetricas}</strong></td></tr>
-                </table>
-            `;
+            // document.getElementById('metricasDW').innerHTML = `
+            //             <table class="table table-sm">
+            //                 <tr><td>Contención Promedio:</td><td><strong>${data.dataWarehouse.promedioContencion}%</strong></td></tr>
+            //                 <tr><td>Métricas Recientes:</td><td><strong>${data.dataWarehouse.metricasRecientes}</strong></td></tr>
+            //                 <tr><td>Total Métricas:</td><td><strong>${data.dataWarehouse.totalMetricas}</strong></td></tr>
+            //             </table>
+            //         `;
         }
 
         function crearGraficos(data) {
@@ -272,9 +272,9 @@
             charts.resultados = new Chart(ctxResultados, {
                 type: 'doughnut',
                 data: {
-                    labels: data.partidas.distribucionResultadosLabels || ['Exitosas', 'Con Lesionados', 'En Progreso', 'Otros'],
+                    labels: data.graf1.labels,
                     datasets: [{
-                        data: data.partidas.distribucionResultadosValues || [data.partidas.exitosas, data.partidas.conLesionados, 0, 0],
+                        data: data.graf1.values,
                         backgroundColor: [colores[0], colores[1], colores[2], colores[3], colores[4]],
                         borderWidth: 2,
                         borderColor: '#1e1e1e'
@@ -288,7 +288,7 @@
                         },
                         tooltip: {
                             callbacks: {
-                                label: function(context) {
+                                label: function (context) {
                                     const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                     const percentage = Math.round((context.raw / total) * 100);
                                     return `${context.label}: ${context.raw} (${percentage}%)`;
@@ -299,35 +299,42 @@
                 }
             });
 
-            // Gráfico 2: Ratio de Extinción por Nivel (Barras Horizontales)
+            console.log(data.graf2.data);
+
+            // Gráfico 2: Desasosiego Versus Heridas
             const ctxEficiencia = document.getElementById('chartEficienciaNiveles').getContext('2d');
             charts.eficiencia = new Chart(ctxEficiencia, {
-                type: 'bar',
+                type: 'scatter',
                 data: {
-                    labels: data.partidas.nombresNiveles || ['Nivel 1', 'Nivel 2'],
-                    datasets: [{
-                        label: 'Ratio de Extinción (%)',
-                        data: data.partidas.ratioExtincion || [75, 82],
-                        backgroundColor: '#2196F3',
-                        borderColor: '#1976D2',
-                        borderWidth: 1
-                    }]
+                    datasets:[
+                        {
+                            color:colores[2],
+                            label:'',
+                            data:data.graf2.data,
+                        }
+                    ]
                 },
                 options: {
-                    indexAxis: 'y', // Barras horizontales
-                    responsive: true,
                     scales: {
                         x: {
-                            beginAtZero: true,
-                            max: 100,
-                            ticks: {
-                                callback: function(value) {
-                                    return value + '%';
-                                }
-                            }
+                            type:'linear',
+                            position:'bottom',
+                            title: {
+                                display: true,
+                                text: 'Desasosiego'
+                            },
                         },
                         y: {
-                            beginAtZero: true
+                            type:'linear',
+                            title: {
+                                display: true,
+                                text: 'Heridas Recibidas'
+                            },
+                        },
+                    },
+                    elements:{
+                        point:{
+                            backgroundColor:'#FF9800'
                         }
                     }
                 }
@@ -338,11 +345,11 @@
             charts.tendencias = new Chart(ctxTendencias, {
                 type: 'line',
                 data: {
-                    labels: data.partidas.tiempoJugadoLabels || ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+                    labels: data.graf3.fechas,
                     datasets: [
                         {
-                            label: 'Tiempo Total Jugado (min)',
-                            data: data.partidas.tiempoJugadoPorDia || [45, 62, 38, 55, 78, 65, 42],
+                            label: 'Tiempo Total Jugado',
+                            data: data.graf3.tiempoJugado,
                             borderColor: '#4CAF50',
                             backgroundColor: 'rgba(76, 175, 80, 0.1)',
                             tension: 0.4,
@@ -350,8 +357,8 @@
                             borderWidth: 3
                         },
                         {
-                            label: 'Promedio por Partida (min)',
-                            data: data.partidas.promedioTiempoPorDia || [15, 18, 12, 16, 19, 17, 14],
+                            label: 'Promedio por Partida',
+                            data: data.graf3.promedioJugado,
                             borderColor: '#2196F3',
                             backgroundColor: 'rgba(33, 150, 243, 0.1)',
                             tension: 0.4,
@@ -375,7 +382,7 @@
                                 text: 'Minutos'
                             },
                             ticks: {
-                                callback: function(value) {
+                                callback: function (value) {
                                     return value + ' min';
                                 }
                             }
@@ -390,7 +397,7 @@
                     plugins: {
                         tooltip: {
                             callbacks: {
-                                label: function(context) {
+                                label: function (context) {
                                     return `${context.dataset.label}: ${context.raw} minutos`;
                                 }
                             }
@@ -402,21 +409,17 @@
             // Gráfico 4: Comportamiento Seguridad (Pie)
             const ctxSeguridad = document.getElementById('chartSeguridad').getContext('2d');
             charts.seguridad = new Chart(ctxSeguridad, {
-                type: 'pie',
+                type: 'bar',
                 data: {
-                    labels: ['Con Uniforme', 'Con Alarma', 'Sin Lesiones', 'Protocolo Completo'],
+                    labels: ['Uso Alarma', 'Uso Uniforme', 'Sin Lesiones', 'Protocolo Completo'],
                     datasets: [{
-                        data: [65, 45, 70, 35], // Datos de ejemplo
+                        data: data.graf4.data,
                         backgroundColor: ['#4CAF50', '#2196F3', '#FF9800', '#9C27B0']
                     }]
                 },
                 options: {
                     responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
+                    
                 }
             });
         }
@@ -455,64 +458,64 @@
             console.log("Mostrando KPIs en modal:", kpis);
 
             const modalContent = `
-                <div class="modal fade" id="kpisModal" tabindex="-1">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header bg-primary text-white">
-                                <h5 class="modal-title">KPIs Avanzados</h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <div class="card border-success mb-3">
-                                            <div class="card-header bg-success text-white">
-                                                <h6>Vulnerabilidad por Género</h6>
+                        <div class="modal fade" id="kpisModal" tabindex="-1">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-primary text-white">
+                                        <h5 class="modal-title">KPIs Avanzados</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="card border-success mb-3">
+                                                    <div class="card-header bg-success text-white">
+                                                        <h6>Vulnerabilidad por Género</h6>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <h4 class="text-success">${kpis.vulnerabilidadGenero?.brechaPorcentaje || 0}%</h4>
+                                                        <small>Brecha en protocolos</small>
+                                                        <p class="mt-2 small">${kpis.vulnerabilidadGenero?.mensaje || 'Datos de ejemplo'}</p>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div class="card-body">
-                                                <h4 class="text-success">${kpis.vulnerabilidadGenero?.brechaPorcentaje || 0}%</h4>
-                                                <small>Brecha en protocolos</small>
-                                                <p class="mt-2 small">${kpis.vulnerabilidadGenero?.mensaje || 'Datos de ejemplo'}</p>
+                                            <div class="col-md-4">
+                                                <div class="card border-warning mb-3">
+                                                    <div class="card-header bg-warning text-dark">
+                                                        <h6>Impacto del Estrés</h6>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <h4 class="text-warning">${kpis.impactoEstres?.correlacionEstresLesiones || 0}%</h4>
+                                                        <small>Correlación con lesiones</small>
+                                                        <p class="mt-2 small">${kpis.impactoEstres?.mensaje || 'Datos de ejemplo'}</p>
+                                                    </div>
+                                                </div>
                                             </div>
+                                            <div class="col-md-4">
+                                                <div class="card border-info mb-3">
+                                                    <div class="card-header bg-info text-white">
+                                                        <h6>⚡ Eficiencia vs Experiencia</h6>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <h4 class="text-info">${kpis.eficienciaExperiencia?.ventajaMonitores || 0}%</h4>
+                                                        <small>Ventaja monitores</small>
+                                                        <p class="mt-2 small">${kpis.eficienciaExperiencia?.mensaje || 'Datos de ejemplo'}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        ${kpis.mensajeGlobal ? `<div class="alert alert-info mt-3">${kpis.mensajeGlobal}</div>` : ''}
+                                        <div class="text-muted small">
+                                            <i>Generado: ${new Date().toLocaleString()}</i>
                                         </div>
                                     </div>
-                                    <div class="col-md-4">
-                                        <div class="card border-warning mb-3">
-                                            <div class="card-header bg-warning text-dark">
-                                                <h6>Impacto del Estrés</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <h4 class="text-warning">${kpis.impactoEstres?.correlacionEstresLesiones || 0}%</h4>
-                                                <small>Correlación con lesiones</small>
-                                                <p class="mt-2 small">${kpis.impactoEstres?.mensaje || 'Datos de ejemplo'}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="card border-info mb-3">
-                                            <div class="card-header bg-info text-white">
-                                                <h6>⚡ Eficiencia vs Experiencia</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <h4 class="text-info">${kpis.eficienciaExperiencia?.ventajaMonitores || 0}%</h4>
-                                                <small>Ventaja monitores</small>
-                                                <p class="mt-2 small">${kpis.eficienciaExperiencia?.mensaje || 'Datos de ejemplo'}</p>
-                                            </div>
-                                        </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                                     </div>
                                 </div>
-                                ${kpis.mensajeGlobal ? `<div class="alert alert-info mt-3">${kpis.mensajeGlobal}</div>` : ''}
-                                <div class="text-muted small">
-                                    <i>Generado: ${new Date().toLocaleString()}</i>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                             </div>
                         </div>
-                    </div>
-                </div>
-            `;
+                    `;
 
             const existingModal = document.getElementById('kpisModal');
             if (existingModal) {

@@ -19,16 +19,7 @@ public class InicioController : Controller
 
     public async Task<IActionResult> Index()
     {
-        try
-        {
-            var dashboardData = await ObtenerDatosDashboard();
-            return View(dashboardData);
-        }
-        catch (Exception ex)
-        {
-            TempData["Error"] = "Error al cargar los datos del dashboard";
-            return View(new DashboardViewModel());
-        }
+        return RedirectToAction("estadisticas", "Stats");
     }
 
     // ==================== API PARA DATOS EN TIEMPO REAL ====================

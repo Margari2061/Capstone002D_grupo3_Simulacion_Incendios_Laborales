@@ -100,7 +100,7 @@ public class AuthController : Controller
 
             await HttpContext.SignInAsync(new ClaimsPrincipal(claimsIdentity));
 
-            return RedirectToAction("Index", "Inicio");
+            return RedirectToAction("estadisticas", "Stats");
         }
         catch (Exception ex)
         {
