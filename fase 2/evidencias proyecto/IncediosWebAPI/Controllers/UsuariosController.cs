@@ -92,7 +92,7 @@ public class UsuariosController : Controller
 
             double avgExt = Math.Round(totalExtinguisherUsed / totalExtinguished, 2);
             if(double.IsInfinity(avgExt) || double.IsNaN(avgExt))
-                avgExt = 0;
+                avgExt = 1;
 
             model.TimePlayed = played.ToString(@"hh\:mm\:ss");
             model.PlayedRuns = totalRuns;

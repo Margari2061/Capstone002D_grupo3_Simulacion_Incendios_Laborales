@@ -51,7 +51,7 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        <h5>Desasosiego (x) v/s Heridas Recibidas (y)</h5>
+                        <h5>Desasosiego v/s Heridas Recibidas</h5>
                     </div>
                     <div class="card-body">
                         <canvas id="chartEficienciaNiveles" height="250"></canvas>
@@ -299,7 +299,7 @@
                 }
             });
 
-            console.log(data.graf2.data);
+            
 
             // Gráfico 2: Desasosiego Versus Heridas
             const ctxEficiencia = document.getElementById('chartEficienciaNiveles').getContext('2d');
@@ -315,13 +315,18 @@
                     ]
                 },
                 options: {
+                    plugins: {
+                           legend: {
+                        display:false
+                           }
+                    },
                     scales: {
                         x: {
                             type:'linear',
                             position:'bottom',
                             title: {
                                 display: true,
-                                text: 'Desasosiego'
+                                text: 'Desasosiego '
                             },
                         },
                         y: {
@@ -417,11 +422,33 @@
                         backgroundColor: ['#4CAF50', '#2196F3', '#FF9800', '#9C27B0']
                     }]
                 },
-                options: {
-                    responsive: true,
-                    
+                        options: {
+                responsive: true,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: ${context.raw}%`;  // ← NUEVO TOOLTIP
+                            }
+                        }
+                    },
+                    legend: {
+                        display:false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
                 }
-            });
+            }
+        });
         }
 
         // Función para cargar KPIs Avanzados
