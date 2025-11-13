@@ -377,10 +377,10 @@ public class StatsController : Controller
                 protocoloCompleto++;
         }
 
-        double avgAlarma = (double)usoAlarma / totalPartidas * 100.0;
-        double avgUniforme = (double)usoUniforme / totalPartidas * 100.0;
-        double avgLesiones = (double)sinLesiones / totalPartidas * 100.0;
-        double avgProtocolo = (double)protocoloCompleto / totalPartidas * 100.0;
+        double avgAlarma = Math.Round((double)usoAlarma / totalPartidas * 100.0,2);
+        double avgUniforme = Math.Round((double)usoUniforme / totalPartidas * 100.0,2);
+        double avgLesiones = Math.Round((double)sinLesiones / totalPartidas * 100.0,2);
+        double avgProtocolo = Math.Round((double)protocoloCompleto / totalPartidas * 100.0, 2);
         #endregion
 
 
